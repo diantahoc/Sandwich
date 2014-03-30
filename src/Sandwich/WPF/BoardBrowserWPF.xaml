@@ -1,0 +1,27 @@
+﻿<UserControl xmlns:my1="clr-namespace:Sandwich.WPF"  xmlns:my="clr-namespace:ChromeTabs;assembly=ChromeTabs"  x:Class="Sandwich.WPF.BoardBrowserWPF"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:my2="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+             mc:Ignorable="d" d:DesignHeight="404" d:DesignWidth="518">
+
+    <Grid>        
+        <my:ChromeTabControl x:Name="tabs"
+                         Loaded="tabs_Loaded" 
+                         SelectionChanged="tabs_SelectionChanged"
+                         ItemRemoved="tabs_ItemRemoved"
+                         HorizontalAlignment="Stretch" 
+                         VerticalAlignment="Stretch"
+                         Grid.Column="0">
+        </my:ChromeTabControl>
+
+        <my2:Flyout x:Name="qrCon" Header="Quick Reply" Position="Right" Width="300" Background="White">
+          
+        </my2:Flyout>
+
+        <my2:Flyout Name="fly" Position="Top" Height="150" Background="White" Visibility="Collapsed">
+
+        </my2:Flyout>
+    </Grid>
+</UserControl>

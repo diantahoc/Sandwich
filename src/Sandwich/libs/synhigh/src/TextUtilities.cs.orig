@@ -1,0 +1,64 @@
+﻿using System;
+using System.Diagnostics.Contracts;
+
+namespace AurelienRibon.Ui.CodeBox {
+	public class TextUtilities {
+		/// <summary>
+		/// Returns the raw number of the current line count.
+		/// </summary>
+		public static int GetLineCount(string text) {
+			int lcnt = 1;
+			for (int i = 0; i < text.Length; i++) {
+				if ('\n'.Equals(text[i]))
+					lcnt++;
+			}
+			return lcnt;
+		}
+
+		/// <summary>
+		/// Returns the index of the first character of the
+		/// specified line. If the index is greater than the current
+		/// line count, the method returns the index of the last
+		/// character. If it is lower than zero, it returns zero.
+		/// </summary>
+		public static int GetFirstCharIndexFromLineIndex(string text, int lineIndex) {
+			if (lineIndex <= 0)
+				return 0;
+
+			int currentLineIndex = 0;
+			for (int i = 0; i < text.Length - 1; i++) {
+				if (text[i] == '\n') {
+					currentLineIndex++;
+					if (currentLineIndex == lineIndex)
+						return Math.Min(i + 1, text.Length - 1);
+				}
+			}
+
+			return Math.Max(text.Length - 1, 0);
+		}
+
+		/// <summary>
+		/// Returns the index of the last character of the
+		/// specified line. If the index is greater than the current
+		/// line count, the method returns the index of the last
+		/// character. If it is lower than zero, it returns zero.
+		/// </summary>
+		public static int GetLastCharIndexFromLineIndex(string text, int lineIndex) {
+			if (lineIndex < 0)
+				return 0;
+			if (lineIndex == 0)
+				return Math.Max(text.Length - 1, 0);
+
+			int currentLineIndex = 0;
+			for (int i = 0; i < text.Length - 1; i++) {
+				if (text[i] == '\n') {
+					currentLineIndex++;
+					if (currentLineIndex == lineIndex + 1)
+						return Math.Min(i - 1, text.Length - 1);
+				}
+			}
+
+			return Math.Max(text.Length - 1, 0);
+		}
+	}
+}

@@ -1,0 +1,36 @@
+﻿<UserControl xmlns:my="clr-namespace:Sandwich"  x:Class="Sandwich.CatalogPresenterItem"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="250" d:DesignWidth="250">
+    <Grid Name="gr" Height="250" Width="250" MaxHeight="250" MaxWidth="250">
+        <Label Name="status" Content="Loading..." HorizontalAlignment="Center" VerticalAlignment="Center" />
+        
+        <Image Visibility="Hidden" 
+               Cursor="Hand"
+               Height="200" 
+               HorizontalAlignment="Center"
+               Name="image1"
+               Stretch="Uniform"
+               VerticalAlignment="Top"
+               Width="250"
+               Focusable="False"
+               
+               MouseUp="image1_MouseUp"
+               MouseDown="image1_MouseDown">
+        </Image>
+       
+        <Label Cursor="Hand" 
+               HorizontalContentAlignment="Center"
+               Content="emtpy text"
+               Height="50"
+               HorizontalAlignment="Left"
+               Margin="0,198,0,0"
+               Name="label1" 
+               VerticalAlignment="Top"
+               Width="250" 
+               FontStretch="Expanded" />
+    </Grid>
+</UserControl>

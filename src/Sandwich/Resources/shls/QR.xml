@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<Syntax name="QR">
+
+  <!--<HighlightLineRule name="">
+    <LineStart>></LineStart>
+    <IgnoreCase>false</IgnoreCase>
+    <Foreground>#B5BD68</Foreground>
+    <FontWeight>Normal</FontWeight>
+    <FontStyle>Italic</FontStyle>
+  </HighlightLineRule>-->
+  
+  <AdvancedHighlightRule name="GreenText">
+    <Expression>>[^>>\d].+</Expression>
+    <IgnoreCase>false</IgnoreCase>
+    <Foreground>#B5BD68</Foreground>
+    <FontWeight>Normal</FontWeight>
+    <FontStyle>Normal</FontStyle>
+  </AdvancedHighlightRule>
+  
+  
+  <AdvancedHighlightRule name="Quotes">
+    <Expression>>>\d+</Expression>
+    <IgnoreCase>false</IgnoreCase>
+    <Foreground>#FF0000</Foreground>
+    <FontWeight>Normal</FontWeight>
+    <FontStyle>Normal</FontStyle>
+  </AdvancedHighlightRule>
+
+
+
+</Syntax>

@@ -1,0 +1,552 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{E4C0FEA6-DB8F-48BD-A3D1-E303839B499C}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Sandwich</RootNamespace>
+    <AssemblyName>Sandwich</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>ffffffffffffff.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>Sandwich.App</StartupObject>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="ChromeTabs">
+      <HintPath>..\..\wpfchrometabs-master\ChromeTabs\bin\Release\ChromeTabs.dll</HintPath>
+    </Reference>
+    <Reference Include="FabTab">
+      <HintPath>..\..\FabTab-master\FabTab-master\bin\FabTab.dll</HintPath>
+    </Reference>
+    <Reference Include="MahApps.Metro">
+      <HintPath>..\..\MahApps.Metro.0.11.0.0\lib\net40\MahApps.Metro.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\chanb pro\Json50r6\Bin\Net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Windows.Interactivity">
+      <HintPath>..\..\MahApps.Metro.0.11.0.0\lib\net40\System.Windows.Interactivity.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="UIAutomationProvider" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="WindowsFormsIntegration" />
+    <Reference Include="ZoomAndPan">
+      <HintPath>..\..\ZoomAndPan.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="APIResponse.cs" />
+    <Compile Include="ArchiveExtensions\Archive.cs" />
+    <Compile Include="ArchiveExtensions\ArchiveDataProvider.cs" />
+    <Compile Include="ArchiveExtensions\FoolFuukaParser.cs" />
+    <Compile Include="DataTypes\CommentToken.cs" />
+    <Compile Include="ElementsColors.cs" />
+    <Compile Include="FChanInfo.cs" />
+    <Compile Include="Helpers\ThreadHelper.cs" />
+    <Compile Include="WallbaseWallpaper.cs" />
+    <Compile Include="DataTypes\FileLoader.cs" />
+    <Compile Include="libs\stp\CallerThreadContext.cs" />
+    <Compile Include="libs\stp\CanceledWorkItemsGroup.cs" />
+    <Compile Include="libs\stp\EventWaitHandle.cs" />
+    <Compile Include="libs\stp\EventWaitHandleFactory.cs" />
+    <Compile Include="libs\stp\Exceptions.cs" />
+    <Compile Include="libs\stp\Interfaces.cs" />
+    <Compile Include="libs\stp\InternalInterfaces.cs" />
+    <Compile Include="libs\stp\PriorityQueue.cs" />
+    <Compile Include="libs\stp\SLExt.cs" />
+    <Compile Include="libs\stp\SmartThreadPool.cs" />
+    <Compile Include="libs\stp\SmartThreadPool.ThreadEntry.cs" />
+    <Compile Include="libs\stp\Stopwatch.cs" />
+    <Compile Include="libs\stp\STPEventWaitHandle.cs" />
+    <Compile Include="libs\stp\STPPerformanceCounter.cs" />
+    <Compile Include="libs\stp\STPStartInfo.cs" />
+    <Compile Include="libs\stp\SynchronizedDictionary.cs" />
+    <Compile Include="libs\stp\WIGStartInfo.cs" />
+    <Compile Include="libs\stp\WorkItem.cs" />
+    <Compile Include="libs\stp\WorkItem.WorkItemResult.cs" />
+    <Compile Include="libs\stp\WorkItemFactory.cs" />
+    <Compile Include="libs\stp\WorkItemInfo.cs" />
+    <Compile Include="libs\stp\WorkItemResultTWrapper.cs" />
+    <Compile Include="libs\stp\WorkItemsGroup.cs" />
+    <Compile Include="libs\stp\WorkItemsGroupBase.cs" />
+    <Compile Include="libs\stp\WorkItemsQueue.cs" />
+    <Compile Include="SessionManager\SessionFile.cs" />
+    <Compile Include="SessionManager\SessionManager.cs" />
+    <Compile Include="WPF\ClickableLabel.cs" />
+    <Compile Include="WPF\DeletePostDialog.xaml.cs">
+      <DependentUpon>DeletePostDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="WPF\ExifRenderer.xaml.cs">
+      <DependentUpon>ExifRenderer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="libs\hap\1_4_0\HtmlAgilityPack\crc32.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="libs\hap\1_4_0\HtmlAgilityPack\EncodingFoundException.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="libs\hap\1_4_0\HtmlAgilityPack\HtmlAttribute.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="libs\hap\1_4_0\HtmlAgilityPack\HtmlAttributeCollection.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="libs\hap\1_4_0\HtmlAgilityPack\HtmlCmdLine.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="libs\hap\1_4_0\HtmlAgilityPack\HtmlCommentNode.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="libs\hap\1_4_0\HtmlAgilityPack\HtmlConsoleListener.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="libs\hap\1_4_0\HtmlAgilityPack\HtmlDocument.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="libs\hap\1_4_0\HtmlAgilityPack\HtmlElementFlag.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="libs\hap\1_4_0\HtmlAgilityPack\HtmlEntity.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="libs\hap\1_4_0\HtmlAgilityPack\HtmlNameTable.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="libs\hap\1_4_0\HtmlAgilityPack\HtmlNode.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="libs\hap\1_4_0\HtmlAgilityPack\HtmlNodeCollection.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="libs\hap\1_4_0\HtmlAgilityPack\HtmlNodeNavigator.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="libs\hap\1_4_0\HtmlAgilityPack\HtmlNodeType.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="libs\hap\1_4_0\HtmlAgilityPack\HtmlParseError.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="libs\hap\1_4_0\HtmlAgilityPack\HtmlParseErrorCode.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="libs\hap\1_4_0\HtmlAgilityPack\HtmlTextNode.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="libs\hap\1_4_0\HtmlAgilityPack\HtmlWeb.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="libs\hap\1_4_0\HtmlAgilityPack\HtmlWebException.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="libs\hap\1_4_0\HtmlAgilityPack\IOLibrary.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="libs\hap\1_4_0\HtmlAgilityPack\MixedCodeDocument.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="libs\hap\1_4_0\HtmlAgilityPack\MixedCodeDocumentCodeFragment.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="libs\hap\1_4_0\HtmlAgilityPack\MixedCodeDocumentFragment.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="libs\hap\1_4_0\HtmlAgilityPack\MixedCodeDocumentFragmentList.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="libs\hap\1_4_0\HtmlAgilityPack\MixedCodeDocumentFragmentType.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="libs\hap\1_4_0\HtmlAgilityPack\MixedCodeDocumentTextFragment.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="libs\hap\1_4_0\HtmlAgilityPack\NameValuePair.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="libs\hap\1_4_0\HtmlAgilityPack\NameValuePairList.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="libs\synhigh\src\DrawingControl.cs" />
+    <Compile Include="libs\synhigh\src\HighlighterManager.cs" />
+    <Compile Include="libs\synhigh\src\IHighlighter.cs" />
+    <Compile Include="libs\synhigh\src\SyntaxHighlightBox.xaml.cs">
+      <DependentUpon>SyntaxHighlightBox.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="libs\synhigh\src\TextUtilities.cs" />
+    <Compile Include="ThreadMonitor.cs" />
+    <Compile Include="WPF\BoardIcon.xaml.cs">
+      <DependentUpon>BoardIcon.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="WPF\IndexNavigator.xaml.cs">
+      <DependentUpon>IndexNavigator.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="WPF\MainWindow.xaml.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="WPF\BoardHomePageWPF.xaml.cs">
+      <DependentUpon>BoardHomePageWPF.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="TabElement.cs" />
+    <Compile Include="WPF\App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FileDecoderEncoders\Cornelia.cs" />
+    <Compile Include="Helpers\BoardInfo.cs" />
+    <Compile Include="BoardRss.cs" />
+    <Compile Include="CaptchaProvide.cs" />
+    <Compile Include="CatalogDownloader.cs" />
+    <Compile Include="libs\rss\Collections\ExceptionCollection.cs" />
+    <Compile Include="libs\rss\Collections\RssCategoryCollection.cs" />
+    <Compile Include="libs\rss\Collections\RssChannelCollection.cs" />
+    <Compile Include="libs\rss\Collections\RssFeedCollection.cs" />
+    <Compile Include="libs\rss\Collections\RssItemCollection.cs" />
+    <Compile Include="libs\rss\Collections\RssModuleCollection.cs" />
+    <Compile Include="libs\rss\Collections\RssModuleItemCollection.cs" />
+    <Compile Include="libs\rss\Collections\RssModuleItemCollectionCollection.cs" />
+    <Compile Include="libs\rss\RssChannel\RssChannel.cs" />
+    <Compile Include="libs\rss\RssChannel\RssCloud.cs" />
+    <Compile Include="libs\rss\RssChannel\RssImage.cs" />
+    <Compile Include="libs\rss\RssChannel\RssTextInput.cs" />
+    <Compile Include="libs\rss\RssFeed.cs" />
+    <Compile Include="libs\rss\RssItem\RssEnclosure.cs" />
+    <Compile Include="libs\rss\RssItem\RssGuid.cs" />
+    <Compile Include="libs\rss\RssItem\RssItem.cs" />
+    <Compile Include="libs\rss\RssItem\RssSource.cs" />
+    <Compile Include="libs\rss\RssModule.cs" />
+    <Compile Include="libs\rss\RssModuleItem.cs" />
+    <Compile Include="libs\rss\RssModules\RssBlogChannel.cs" />
+    <Compile Include="libs\rss\RssModules\RssCreativeCommon.cs" />
+    <Compile Include="libs\rss\RssModules\RssPhotoAlbum.cs" />
+    <Compile Include="libs\rss\RssReader.cs" />
+    <Compile Include="libs\rss\RssWriter.cs" />
+    <Compile Include="libs\rss\Shared\DBBool.cs" />
+    <Compile Include="libs\rss\Shared\RssCategory.cs" />
+    <Compile Include="libs\rss\Shared\RssCompact.cs" />
+    <Compile Include="libs\rss\Shared\RssDefault.cs" />
+    <Compile Include="libs\rss\Shared\RssElement.cs" />
+    <Compile Include="libs\rss\Shared\RssEnumerators.cs" />
+    <Compile Include="libs\wpfgif\AnimationCache.cs" />
+    <Compile Include="libs\wpfgif\Decoding\GifApplicationExtension.cs" />
+    <Compile Include="libs\wpfgif\Decoding\GifBlock.cs" />
+    <Compile Include="libs\wpfgif\Decoding\GifBlockKind.cs" />
+    <Compile Include="libs\wpfgif\Decoding\GifColor.cs" />
+    <Compile Include="libs\wpfgif\Decoding\GifCommentExtension.cs" />
+    <Compile Include="libs\wpfgif\Decoding\GifDecoderException.cs" />
+    <Compile Include="libs\wpfgif\Decoding\GifExtension.cs" />
+    <Compile Include="libs\wpfgif\Decoding\GifFile.cs" />
+    <Compile Include="libs\wpfgif\Decoding\GifFrame.cs" />
+    <Compile Include="libs\wpfgif\Decoding\GifGraphicControlExtension.cs" />
+    <Compile Include="libs\wpfgif\Decoding\GifHeader.cs" />
+    <Compile Include="libs\wpfgif\Decoding\GifHelpers.cs" />
+    <Compile Include="libs\wpfgif\Decoding\GifImageData.cs" />
+    <Compile Include="libs\wpfgif\Decoding\GifImageDescriptor.cs" />
+    <Compile Include="libs\wpfgif\Decoding\GifLogicalScreenDescriptor.cs" />
+    <Compile Include="libs\wpfgif\Decoding\GifPlainTextExtension.cs" />
+    <Compile Include="libs\wpfgif\Decoding\GifTrailer.cs" />
+    <Compile Include="libs\wpfgif\ImageAnimationController.cs" />
+    <Compile Include="libs\wpfgif\ImageBehavior.cs" />
+    <Compile Include="WPF\BoardBrowserWPF.xaml.cs">
+      <DependentUpon>BoardBrowserWPF.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="WPF\CatalogPresenter.xaml.cs">
+      <DependentUpon>CatalogPresenter.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="WPF\CatalogPresenterItem.xaml.cs">
+      <DependentUpon>CatalogPresenterItem.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Common.cs" />
+    <Compile Include="Core.cs">
+    </Compile>
+    <Compile Include="WinformUI\Form1.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="WinformUI\Form1.Designer.cs">
+      <DependentUpon>Form1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ArchiveExtensions\FuukaParser.cs" />
+    <Compile Include="DataTypes\GenericPost.cs" />
+    <Compile Include="FileDecoderEncoders\IFileEncoderDecoder.cs" />
+    <Compile Include="WPF\ImageViewer.xaml.cs">
+      <DependentUpon>ImageViewer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="WPF\PictureBoxWPF.xaml.cs">
+      <DependentUpon>PictureBoxWPF.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="WPF\PostDisplayerWPF.xaml.cs">
+      <DependentUpon>PostDisplayerWPF.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DataTypes\PostFile.cs" />
+    <Compile Include="WPF\PostTextRenderer.xaml.cs">
+      <DependentUpon>PostTextRenderer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="DataTypes\Reply.cs" />
+    <Compile Include="DataTypes\ThreadContainer.cs" />
+    <Compile Include="WPF\QuickReply.xaml.cs">
+      <DependentUpon>QuickReply.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="WPF\QuickReplyTab.xaml.cs">
+      <DependentUpon>QuickReplyTab.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="WPF\RegexHelp.xaml.cs">
+      <DependentUpon>RegexHelp.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="WPF\ReportPostDialog.xaml.cs">
+      <DependentUpon>ReportPostDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="WPF\SettingsManager.xaml.cs">
+      <DependentUpon>SettingsManager.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="WPF\TabTile.cs" />
+    <Compile Include="WPF\ThreadViewerWPF.xaml.cs">
+      <DependentUpon>ThreadViewerWPF.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Helpers\WPFHelpers.cs" />
+    <Compile Include="WPF\TileTab.xaml.cs">
+      <DependentUpon>TileTab.xaml</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="WinformUI\Form1.resx">
+      <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <None Include="app.config" />
+    <None Include="libs\synhigh\src\CodeBox.xaml.cs.orig" />
+    <None Include="libs\synhigh\src\CodeBox.xaml.orig" />
+    <None Include="libs\synhigh\src\TextUtilities.cs.orig" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <Compile Include="RequestPoster.cs" />
+    <Compile Include="Settings.cs" />
+    <Resource Include="Resources\shls\syntax.xsd" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\404" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.0">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="ffffffffffffff.ico" />
+    <Resource Include="Resources\icons\appbar.settings.png" />
+    <Resource Include="Resources\shls\QR.xml" />
+    <Resource Include="Resources\shls\VHDL.xml" />
+    <Resource Include="Resources\bgs\5.png" />
+    <Resource Include="Resources\error.png" />
+    <Resource Include="Resources\icons\dead.png" />
+    <Resource Include="Resources\icons\nsfw-normal.png" />
+    <Resource Include="Resources\icons\nsfw-unread.png" />
+    <Resource Include="Resources\icons\sfw-normal.png" />
+    <Resource Include="Resources\icons\sfw-unread.png" />
+    <Resource Include="Resources\spoiler_images\spoiler-a1.png" />
+    <Resource Include="Resources\spoiler_images\spoiler-co1.png" />
+    <Resource Include="Resources\spoiler_images\spoiler-jp1.png" />
+    <Resource Include="Resources\spoiler_images\spoiler-m1.png" />
+    <Resource Include="Resources\spoiler_images\spoiler-mlp1.png" />
+    <Resource Include="Resources\spoiler_images\spoiler-tg1.png" />
+    <Resource Include="Resources\spoiler_images\spoiler-tv1.png" />
+    <Resource Include="Resources\spoiler_images\spoiler-v1.png" />
+    <Resource Include="Resources\spoiler_images\spoiler-vg1.png" />
+    <Resource Include="Resources\spoiler_images\spoiler-vp1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="WPF\App.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </ApplicationDefinition>
+    <Page Include="WPF\DeletePostDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WPF\IndexNavigator.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WPF\ReportPostDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WPF\TileTab.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WPF\ExifRenderer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="libs\synhigh\src\SyntaxHighlightBox.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="WPF\BoardIcon.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WPF\MainWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WPF\BoardHomePageWPF.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WPF\BoardBrowserWPF.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WPF\CatalogPresenter.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WPF\CatalogPresenterItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WPF\ImageViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WPF\PictureBoxWPF.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WPF\PostDisplayerWPF.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WPF\PostTextRenderer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WPF\QuickReply.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WPF\QuickReplyTab.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WPF\RegexHelp.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WPF\SettingsManager.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WPF\ThreadViewerWPF.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

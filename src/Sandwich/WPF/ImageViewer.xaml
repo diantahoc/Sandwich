@@ -1,0 +1,132 @@
+﻿<UserControl xmlns:my="clr-namespace:Sandwich"
+             xmlns:my1="clr-namespace:Sandwich.WPF"
+             x:Class="Sandwich.WPF.ImageViewer" 
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:zap="clr-namespace:ZoomAndPan;assembly=ZoomAndPan"
+             mc:Ignorable="d" d:DesignHeight="380" d:DesignWidth="630"
+             Background="White">
+    <UserControl.Resources>
+        <RoutedUICommand x:Key="Commands.ZoomOut" />
+        <RoutedUICommand x:Key="Commands.ZoomIn" />
+        <RoutedUICommand x:Key="Commands.JumpBackToPrevZoom" />
+        <RoutedUICommand x:Key="Commands.Fill" />
+        <RoutedUICommand x:Key="Commands.OneHundredPercent" />
+
+        <my1:ScaleToPercentConverter x:Key="scaleToPercentConverter" />
+  
+    </UserControl.Resources>
+
+    <UserControl.CommandBindings>
+        <CommandBinding Command="{StaticResource Commands.ZoomOut}" Executed="ZoomOut_Executed" />
+        <CommandBinding Command="{StaticResource Commands.ZoomIn}" Executed="ZoomIn_Executed" />
+        <CommandBinding Command="{StaticResource Commands.Fill}" Executed="Fill_Executed" />
+        <CommandBinding Command="{StaticResource Commands.OneHundredPercent}" Executed="OneHundredPercent_Executed" />
+    </UserControl.CommandBindings>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition MaxHeight="30" MinHeight="30" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal">
+            <Button Click="Button_Click">
+                Save...
+            </Button>
+            <Separator MinWidth="2" />
+            <Button Click="Button_Click_1">
+                Save to desktop
+            </Button>
+            <Separator MinWidth="2" />
+            <Button Click="Button_Click_2">
+                Save to board
+            </Button>
+            <Button Click="Button_Click_3">
+                Reload
+            </Button>
+            <Separator MinWidth="2" />
+            <ProgressBar Name="progressBar" MinWidth="100" Minimum="0" Maximum="100" />
+            <Label Name="progress_text" Content="0.00%"/>
+        </StackPanel>
+        
+        
+        
+        <Grid Grid.Row="2">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition MaxHeight="30" />
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    
+                    <ColumnDefinition Width="*" />
+
+                    <ColumnDefinition Width="40" />
+
+                    <ColumnDefinition Width="7" />
+
+                    <ColumnDefinition Width="40" />
+
+                    <ColumnDefinition Width="7" />
+
+                    <ColumnDefinition Width="25" />
+
+                    <ColumnDefinition Width="15" />
+
+                    <ColumnDefinition Width="7" />
+
+                    <ColumnDefinition Width="20" />
+
+                    <ColumnDefinition Width="7" />
+
+                    <ColumnDefinition Width="120" />
+
+                    <ColumnDefinition Width="7" />
+
+                    <ColumnDefinition Width="20" />
+
+                    <ColumnDefinition Width="10" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <Label Grid.Column="0" Grid.Row="1" Name="status" Content="" MinHeight="30"/>
+                
+                <Button Grid.Column="1" Command="{StaticResource Commands.Fill}">
+                    Fill
+                </Button>
+
+                <Button Grid.Column="3" Command="{StaticResource Commands.OneHundredPercent}">
+                    100%
+                </Button>
+
+                <TextBlock Grid.Column="5" VerticalAlignment="Center" HorizontalAlignment="Right" Text="{Binding ElementName=zap_c, Path=ContentScale, Converter={StaticResource scaleToPercentConverter}}" />
+                <TextBlock Grid.Column="6" VerticalAlignment="Center" Text="%" />
+
+                <Button Grid.Column="8" Command="{StaticResource Commands.ZoomOut}">
+                    -
+                </Button>
+
+                <Slider Grid.Column="10" Minimum="10" LargeChange="20" TickFrequency="10" Maximum="500" SmallChange="10" TickPlacement="TopLeft" Value="{Binding ElementName=zap_c, Path=ContentScale, Converter={StaticResource scaleToPercentConverter}}" />
+                <Button Grid.Column="12" Command="{StaticResource Commands.ZoomIn}">
+                    +
+                </Button>
+                
+            </Grid>
+
+
+            <ScrollViewer Name="zap_sc" Grid.Row="0" CanContentScroll="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                <zap:ZoomAndPanControl Background="LightGray"
+                                       Name="zap_c" 
+                                       MaxContentScale="5" MinContentScale="0.5" CanHorizontallyScroll="True" CanVerticallyScroll="True" ContentScale="1" MouseDown="zoomAndPanControl_MouseDown" MouseUp="zoomAndPanControl_MouseUp" MouseMove="zoomAndPanControl_MouseMove" MouseWheel="zoomAndPanControl_MouseWheel" MouseDoubleClick="zoomAndPanControl_MouseDoubleClick">
+                    <my:PictureBoxWPF x:Name="picbox" />
+                </zap:ZoomAndPanControl>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</UserControl>

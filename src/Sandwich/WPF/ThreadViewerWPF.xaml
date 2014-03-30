@@ -1,0 +1,42 @@
+﻿<UserControl x:Class="Sandwich.ThreadViewerWPF"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d"  xmlns:my1="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+             d:DesignHeight="344" d:DesignWidth="436">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Name="header" MaxHeight="30" />
+                <RowDefinition Name="content" />
+                <RowDefinition Name="footer" MaxHeight="30" />
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0" Orientation="Horizontal">
+
+                <Button Click="Button_Click_2">Dump Images</Button>
+
+                <Button Name="replybtn" Content="Reply" Click="Button_Click" />
+                <Separator />
+
+                <Button Name="updatebtn" Content="Update" Click="Button_Click_1" />
+                <Separator />
+
+                <Button Content="Top" Click="scroll_top" />
+                <Button Content="Bottom" Click="scroll_bottom" />
+
+                <Button Name="loadDead" Visibility="Collapsed" Click="loadDead_Click">Load from archive</Button>
+            </StackPanel>
+
+            <ScrollViewer Grid.Row="1" Name="sc" VerticalScrollBarVisibility="Auto">
+                <VirtualizingStackPanel Name="stackpanel"
+                                    VirtualizingStackPanel.VirtualizationMode="Recycling"  />
+            </ScrollViewer>
+
+
+            <Label Grid.Column="0" Grid.Row="2" Name="statusbar" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" >status</Label>
+
+
+
+        </Grid>    
+</UserControl>
