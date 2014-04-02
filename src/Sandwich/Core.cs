@@ -4,11 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Net;
 using System.IO;
-using Microsoft.VisualBasic.FileIO;
 using System.Drawing;
 using System.ComponentModel;
 using System.Web;
 using System.Xml;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Sandwich
 {
@@ -44,19 +45,19 @@ namespace Sandwich
 
         static Core()
         {
-            check_dir(cache_dir);
+            WebRequest.DefaultWebProxy = null;
+            ServicePointManager.DefaultConnectionLimit = 250;
 
-            check_dir(api_cache_dir);
-            check_dir(img_dir);
-            check_dir(flags_dir);
-            check_dir(misc_dir);
-            check_dir(session_dir);
-            check_dir(log_dir);
-            //System.Threading.Thread ticker = new System.Threading.Thread(Tick);
-            //ticker.Start();
+            Directory.CreateDirectory(cache_dir);
 
-            stp = new Amib.Threading.SmartThreadPool();
-            stp.MaxThreads = 10;
+            Directory.CreateDirectory(api_cache_dir);
+            Directory.CreateDirectory(img_dir);
+            Directory.CreateDirectory(flags_dir);
+            Directory.CreateDirectory(misc_dir);
+            Directory.CreateDirectory(session_dir);
+            Directory.CreateDirectory(log_dir);
+
+            stp = new Amib.Threading.SmartThreadPool() { MaxThreads = 20 };
             stp.Start();
         }
 
@@ -64,89 +65,15 @@ namespace Sandwich
 
         public static void QueueAction(Action t)
         {
+            if (stp.IsShuttingdown) { return; }
             stp.QueueWorkItem(new Amib.Threading.Action(t), Amib.Threading.WorkItemPriority.Normal);
         }
 
         public static void QueueAction(Action t, Amib.Threading.WorkItemPriority priority)
         {
+            if (stp.IsShuttingdown) { return; }
             stp.QueueWorkItem(new Amib.Threading.Action(t), priority);
         }
-
-
-        //private static bool run = true;
-
-        //private static void Tick()
-        //{
-        //    while (run)
-        //    {
-        //        //count running threads
-        //        int active = 0;
-        //        int maxThreads = 4;
-        //        for (int i = 0; i < download_queue.Count; i++)
-        //        {
-        //            if (i >= download_queue.Count) { break; }
-        //            System.Threading.Thread g = download_queue[i];
-        //            if (g != null)
-        //            {
-        //                if (g.ThreadState == System.Threading.ThreadState.Running)
-        //                {
-        //                    active += 1;
-        //                }
-        //                if (g.ThreadState == System.Threading.ThreadState.Stopped)
-        //                {
-        //                    g.Abort();
-        //                    download_queue.Remove(g);
-        //                }
-        //            }
-        //            else
-        //            {
-        //                download_queue.RemoveAt(i); //EXPERIMENTAL
-        //            }
-        //        }
-
-        //        if (active < maxThreads)
-        //        {
-        //            for (int i = 0; i < download_queue.Count; i++)
-        //            {
-        //                if (i >= download_queue.Count) { break; }
-        //                System.Threading.Thread g = download_queue[i];
-        //                if (g.ThreadState == System.Threading.ThreadState.Unstarted)
-        //                {
-        //                    g.Start();
-        //                    active += 1;
-        //                    if (active >= maxThreads) { break; }
-        //                }
-        //                if (g.ThreadState == System.Threading.ThreadState.Suspended)
-        //                {
-        //                    g.Resume();
-        //                    active += 1;
-        //                    if (active >= maxThreads) { break; }
-        //                }
-        //            }
-        //        }
-
-        //        if (active > maxThreads)
-        //        {
-        //            while (active <= maxThreads)
-        //            {
-        //                for (int i = 0; i < download_queue.Count; i++)
-        //                {
-        //                    if (i >= download_queue.Count) { break; }
-        //                    System.Threading.Thread g = download_queue[i];
-        //                    if (g.ThreadState == System.Threading.ThreadState.Running)
-        //                    {
-        //                        g.Suspend();
-        //                        active -= 1;
-        //                    }
-        //                }
-        //            }
-        //        }
-
-        //        /*  cylces += 1;
-        //          if (cylces == 25) { GC.Collect(); cylces = 0; }*/
-        //        System.Threading.Thread.Sleep(450);
-        //    }
-        //}
 
         public static void Shutdown()
         {
@@ -177,19 +104,20 @@ namespace Sandwich
 
                     List<CatalogItem[]> il = new List<CatalogItem[]>();
 
-                    List<Dictionary<string, object>> list = (List<Dictionary<string, object>>)Newtonsoft.Json.JsonConvert.DeserializeObject(response.Data, typeof(List<Dictionary<string, object>>));
+                    JArray list = JsonConvert.DeserializeObject<JArray>(response.Data);
                     //p is page index
                     //u is thread index
                     for (int p = 0; p < list.Count(); p++)
                     {
-                        Dictionary<string, object> page = list[p];
+                        JToken page = list[p];
+
                         List<CatalogItem> Unipage = new List<CatalogItem>();
 
-                        Newtonsoft.Json.Linq.JArray threads = (Newtonsoft.Json.Linq.JArray)page["threads"];
+                        JArray threads = (JArray)page["threads"];
 
                         for (int u = 0; u < threads.Count; u++)
                         {
-                            Newtonsoft.Json.Linq.JToken thread = threads[u];
+                            JToken thread = threads[u];
                             Unipage.Add(ParseJToken_Catalog(thread, p, board));
                         }
 
@@ -221,16 +149,16 @@ namespace Sandwich
                 case APIResponse.ErrorType.NoError:
                     List<ThreadContainer> il = new List<ThreadContainer>();
 
-                    Dictionary<string, object> list = (Dictionary<string, object>)Newtonsoft.Json.JsonConvert.DeserializeObject(response.Data, typeof(Dictionary<string, object>));
+                    JObject list = JsonConvert.DeserializeObject<JObject>(response.Data);
 
                     //u is thread index
 
-                    Newtonsoft.Json.Linq.JArray threads = (Newtonsoft.Json.Linq.JArray)list["threads"];
+                    JArray threads = (JArray)list["threads"];
 
                     for (int u = 0; u < threads.Count; u++)
                     {
-                        Newtonsoft.Json.Linq.JToken posts_object = threads[u]; // array of 'posts' objects. Each one is an array of {Main threads + last replies}.
-                        Newtonsoft.Json.Linq.JToken posts_property = posts_object["posts"];
+                        JToken posts_object = threads[u]; // array of 'posts' objects. Each one is an array of {Main threads + last replies}.
+                        JToken posts_property = posts_object["posts"];
 
                         //first one is 0 -- > a thread
                         //the rest is the last replies
@@ -239,7 +167,7 @@ namespace Sandwich
 
                         for (int post_index = 1; post_index < posts_property.Count(); post_index++)
                         {
-                            Newtonsoft.Json.Linq.JToken single_post = posts_property[post_index];
+                            JToken single_post = posts_property[post_index];
                             tc.AddReply(ParseReply(single_post, board));
                         }
                         il.Add(tc);
@@ -259,25 +187,18 @@ namespace Sandwich
 
         public static ThreadContainer GetThreadData(string board, int id)
         {
-            APIResponse response;
-            if (id == 1525911)
-            {
-                response = LoadAPI("http://127.0.0.1/1525911.json");
-            }
-            else
-            {
-                response = LoadAPI(string.Format("http://a.4cdn.org/{0}/res/{1}.json", board, id));
-            }
+            APIResponse response = LoadAPI(string.Format("http://a.4cdn.org/{0}/res/{1}.json", board, id));
 
             switch (response.Error)
             {
                 case APIResponse.ErrorType.NoError:
                     ThreadContainer tc = null;
-                    Dictionary<string, object> list = (Dictionary<string, object>)Newtonsoft.Json.JsonConvert.DeserializeObject(response.Data, typeof(Dictionary<string, object>));
 
-                    if (list.ContainsKey("posts"))
+                    JObject list = JsonConvert.DeserializeObject<JObject>(response.Data);
+
+                    if (list["posts"] != null && list["posts"].Type != JTokenType.Null)
                     {
-                        Newtonsoft.Json.Linq.JContainer data = (Newtonsoft.Json.Linq.JContainer)list["posts"];
+                        JContainer data = (JContainer)list["posts"];
                         tc = new ThreadContainer(ParseThread(data[0], board));
 
                         for (int index = 1; index < data.Count; index++)
@@ -299,7 +220,7 @@ namespace Sandwich
             }
         }
 
-        private static Thread ParseThread(Newtonsoft.Json.Linq.JToken data, string board)
+        private static Thread ParseThread(JToken data, string board)
         {
             Thread t = new Thread();
 
@@ -411,11 +332,10 @@ namespace Sandwich
             t.text_replies = Convert.ToInt32(data["replies"]);
             t.time = Common.ParseUTC_Stamp(Convert.ToInt32(data["time"]));
 
-
             return t;
         }
 
-        private static PostFile ParseFile(Newtonsoft.Json.Linq.JToken data, string board)
+        private static PostFile ParseFile(JToken data, string board)
         {
             if (data["filename"] != null)
             {
@@ -443,7 +363,7 @@ namespace Sandwich
             }
         }
 
-        private static GenericPost ParseReply(Newtonsoft.Json.Linq.JToken data, string board)
+        private static GenericPost ParseReply(JToken data, string board)
         {
             GenericPost t = new GenericPost();
 
@@ -525,7 +445,7 @@ namespace Sandwich
             return t;
         }
 
-        private static CatalogItem ParseJToken_Catalog(Newtonsoft.Json.Linq.JToken thread, int pagenumber, string board)
+        private static CatalogItem ParseJToken_Catalog(JToken thread, int pagenumber, string board)
         {
             CatalogItem ci = new CatalogItem();
 
@@ -587,7 +507,7 @@ namespace Sandwich
 
             if (thread["last_replies"] != null)
             {
-                Newtonsoft.Json.Linq.JContainer li = (Newtonsoft.Json.Linq.JContainer)thread["last_replies"];
+                JContainer li = (JContainer)thread["last_replies"];
 
                 List<GenericPost> repl = new List<GenericPost>();
 
@@ -624,7 +544,7 @@ namespace Sandwich
         {
             string local_file = Path.Combine(img_dir, Common.MD5(url));
 
-            if (FileSystem.FileExists(local_file) & use_cache)
+            if (File.Exists(local_file) && use_cache)
             {
                 byte[] data = File.ReadAllBytes(local_file);
 
@@ -699,82 +619,6 @@ namespace Sandwich
             }
         }
 
-        //public static void LoadDataNoCache(string work_id, string url, Common.DownloadFinished df)
-        //{
-
-        //}
-
-        //private static void _ldnc(object[] args)
-        //{
-        //    // args : work_id, url, df
-        //    string work_id = Convert.ToString(args[0]);
-        //    string url = Convert.ToString(args[1]);
-        //    Common.DownloadFinished df = (Common.DownloadFinished)args[2];
-        //    try
-        //    {
-        //        WebClient wc = new WebClient();
-        //        byte[] data = wc.DownloadData(url);
-        //        wc.Dispose();
-        //        df(work_id, data, false);
-        //    }
-        //    catch (Exception)
-        //    {
-        //        df(work_id, null, true);
-        //    }
-        //}
-
-        /*  public static byte[] LoadURL(string url) 
-      {
-          string img_dir = Path.Combine(cache_dir, "img");
-          
-          check_dir(img_dir);
-
-          string local_file = Path.Combine(img_dir, MD5(url));
-
-          if (FileSystem.FileExists(local_file))
-          {
-              FileStream fs = new FileStream(local_file, FileMode.OpenOrCreate, FileAccess.Read, FileShare.Read);
-
-              byte[] data = new byte[fs.Length];
-
-              fs.Read(data, 0, (int)fs.Length);
-              fs.Close();
-
-              return data;
-          }
-          else 
-          {
-              WebClient wb = new WebClient();
-
-              byte[] data;
-              try
-              {
-                  data = wb.DownloadData(url);
-              }
-              catch (Exception e)
-              {
-                  if (e.Message.Contains("404"))
-                  {
-                      File.WriteAllBytes(local_file, Properties.Resources._404);
-                      wb.Dispose();
-                      return Properties.Resources._404;
-                  }
-                  else
-                  {
-                      data = null;
-                      File.WriteAllText(local_file, "");
-                      return data;
-                  }
-              }
-               wb.Dispose();
-             
-
-              File.WriteAllBytes(local_file, data);
-
-              return data;
-          }
-      }*/
-
         private static APIResponse LoadAPI(string url)
         {
             string hash = Common.MD5(url);
@@ -786,7 +630,7 @@ namespace Sandwich
 
             APIResponse result;
 
-            if (FileSystem.FileExists(file_path))
+            if (File.Exists(file_path))
             {
                 d = parse_datetime(File.ReadAllText(file_path));
             }
@@ -819,8 +663,6 @@ namespace Sandwich
                     }
                 }
 
-                //using (var a = wbr.GetResponseStream()){a.CopyTo(s);}
-
                 string text = System.Text.Encoding.UTF8.GetString(data);
 
                 string lm = wbr.Headers["Last-Modified"];
@@ -838,7 +680,7 @@ namespace Sandwich
                 {
                     if (httpResponse.StatusCode == HttpStatusCode.NotModified)
                     {
-                        bool data_file_exist = FileSystem.FileExists(file_path_data);
+                        bool data_file_exist = File.Exists(file_path_data);
                         if (data_file_exist)
                         {
                             result = new APIResponse(File.ReadAllText(file_path_data), APIResponse.ErrorType.NoError);
@@ -887,7 +729,7 @@ namespace Sandwich
             else
             {
                 string file_name = Path.Combine(flags_dir, key);
-                if (FileSystem.FileExists(file_name))
+                if (File.Exists(file_name))
                 {
                     MemoryStream m = new MemoryStream(File.ReadAllBytes(file_name));
 
@@ -924,7 +766,7 @@ namespace Sandwich
 
         private static void delete_file(string s)
         {
-            if (FileSystem.FileExists(s)) { FileSystem.DeleteFile(s, UIOption.OnlyErrorDialogs, RecycleOption.DeletePermanently); }
+            if (File.Exists(s)) { File.Delete(s); }
         }
 
         private static DateTime parse_datetime(string s)
@@ -936,12 +778,6 @@ namespace Sandwich
         {
             return XmlConvert.ToString(s, XmlDateTimeSerializationMode.Local);
         }
-
-        public static void check_dir(string path)
-        {
-            if (!FileSystem.DirectoryExists(path)) { FileSystem.CreateDirectory(path); }
-        }
-
 
         public static ReportStatus ReportPost(string board, int post_id, ReportReason reason, SolvedCaptcha captcha)
         {

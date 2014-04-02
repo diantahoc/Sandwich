@@ -137,7 +137,7 @@ namespace Sandwich.WPF
 
             string path = System.IO.Path.Combine(desktop_path, _gp.board);
 
-            Core.check_dir(path);
+            Directory.CreateDirectory(path);
 
             string file_path = System.IO.Path.Combine(path, FileLoader.FileName);
 
