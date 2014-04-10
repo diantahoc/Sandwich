@@ -33,7 +33,7 @@ namespace Sandwich.ArchiveExtensions
 
             if (string.IsNullOrEmpty(data))
             {
-               // throw new Exception("Cannot update archive data");
+                // throw new Exception("Cannot update archive data");
                 Archives = new Archive[] { }; // load an empty archives array, means there is no archives.
             }
             else
@@ -42,7 +42,7 @@ namespace Sandwich.ArchiveExtensions
             }
         }
 
-        public static void init() 
+        public static void init()
         {
             System.Threading.Tasks.Task.Factory.StartNew((Action)delegate
             {
@@ -59,7 +59,7 @@ namespace Sandwich.ArchiveExtensions
 
         private static Archive[] load_archive_data(string data)
         {
-            List<Dictionary<string, object>> list = (List<Dictionary<string, object>>)JsonConvert.DeserializeObject(data, typeof(List<Dictionary<string, object>>));
+            List<Dictionary<string, object>> list = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(data);
 
             List<Archive> il = new List<Archive>();
 
@@ -159,9 +159,9 @@ namespace Sandwich.ArchiveExtensions
             Archive arch_with_files = null;
             Archive arch_nofile = null;
 
-            foreach (Archive arch in Archives) 
+            foreach (Archive arch in Archives)
             {
-                if (arch.IsBoardSupported(board) && arch.IsFileSupported(board)) 
+                if (arch.IsBoardSupported(board) && arch.IsFileSupported(board))
                 {
                     arch_with_files = arch;
                 }
@@ -176,7 +176,7 @@ namespace Sandwich.ArchiveExtensions
             {
                 selected_arch = arch_with_files;
             }
-            else 
+            else
             {
                 selected_arch = arch_nofile;
             }
@@ -197,9 +197,9 @@ namespace Sandwich.ArchiveExtensions
             return null;
         }
 
-        public static bool BoardHasArchive(string board) 
+        public static bool BoardHasArchive(string board)
         {
-            foreach (Archive a in Archives) 
+            foreach (Archive a in Archives)
             {
                 if (a.IsBoardSupported(board)) { return true; }
             }

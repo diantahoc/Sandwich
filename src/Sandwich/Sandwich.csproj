@@ -59,14 +59,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ChromeTabs">
-      <HintPath>..\..\..\..\..\Desktop\Release\ChromeTabs.dll</HintPath>
+      <HintPath>..\..\wpfchrometabs-master\ChromeTabs\bin\Release\ChromeTabs.dll</HintPath>
     </Reference>
     <Reference Include="MahApps.Metro">
-      <HintPath>..\..\..\..\..\Desktop\Release\MahApps.Metro.dll</HintPath>
+      <HintPath>..\..\MahApps.Metro.0.11.0.0\lib\net40\MahApps.Metro.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\Desktop\Release\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\..\chanb pro\Json50r6\Bin\Net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -77,24 +77,20 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
     <Reference Include="System.Windows.Interactivity">
-      <HintPath>..\..\..\..\..\Desktop\Release\System.Windows.Interactivity.dll</HintPath>
+      <HintPath>..\..\MahApps.Metro.0.11.0.0\lib\net40\System.Windows.Interactivity.dll</HintPath>
     </Reference>
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Data.DataSetExtensions">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
     <Reference Include="System.Data" />
-    <Reference Include="System.Deployment" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="UIAutomationProvider" />
     <Reference Include="WindowsBase" />
     <Reference Include="WindowsFormsIntegration" />
     <Reference Include="ZoomAndPan">
-      <HintPath>..\..\..\..\..\Desktop\Release\ZoomAndPan.dll</HintPath>
+      <HintPath>..\..\ZoomAndPan.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -134,7 +130,8 @@
     <Compile Include="libs\stp\WorkItemsQueue.cs" />
     <Compile Include="SessionManager\SessionFile.cs" />
     <Compile Include="SessionManager\SessionManager.cs" />
-    <Compile Include="WPF\ClickableLabel.cs" />
+    <Compile Include="WPF\Clickable Controls\ClickableImage.cs" />
+    <Compile Include="WPF\Clickable Controls\ClickableLabel.cs" />
     <Compile Include="WPF\DeletePostDialog.xaml.cs">
       <DependentUpon>DeletePostDialog.xaml</DependentUpon>
     </Compile>
@@ -336,7 +333,6 @@
       <DependentUpon>PostTextRenderer.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="DataTypes\Reply.cs" />
     <Compile Include="DataTypes\ThreadContainer.cs" />
     <Compile Include="WPF\QuickReply.xaml.cs">
       <DependentUpon>QuickReply.xaml</DependentUpon>
@@ -415,6 +411,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="ffffffffffffff.ico" />
+    <Resource Include="Resources\nothumb.png" />
     <Resource Include="Resources\icons\appbar.settings.png" />
     <Resource Include="Resources\shls\QR.xml" />
     <Resource Include="Resources\shls\VHDL.xml" />
@@ -526,7 +523,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

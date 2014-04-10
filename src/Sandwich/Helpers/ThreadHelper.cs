@@ -219,7 +219,6 @@ namespace Sandwich.Helpers
                     case GenericPost.PostType.FoolFuuka:
                         foreach (HtmlNode node in d.DocumentNode.ChildNodes)
                         {
-
                             switch (node.Name)
                             {
                                 case "a":
@@ -287,7 +286,7 @@ namespace Sandwich.Helpers
                                 case "code":
                                     if (node.GetAttributeValue("class", "") == "prettyprint")
                                     {
-                                        tokens.Add(new CommentToken(CommentToken.TokenType.CodeBlock, HttpUtility.HtmlDecode(get_node_text(node))));
+                                        tokens.Add(new CommentToken(CommentToken.TokenType.CodeBlock, HttpUtility.HtmlDecode(GetNodeText(node))));
                                     }
                                     break;
                                 default:
@@ -303,9 +302,8 @@ namespace Sandwich.Helpers
         }
 
 
-        private static string get_node_text(HtmlNode node)
+        public static string GetNodeText(HtmlNode node)
         {
-
             StringBuilder sb = new StringBuilder();
 
             if (node.Name == "br")
@@ -316,7 +314,7 @@ namespace Sandwich.Helpers
             {
                 foreach (HtmlNode a in node.ChildNodes)
                 {
-                    sb.Append(get_node_text(a));
+                    sb.Append(ThreadHelper.GetNodeText(a));
                 }
             }
             else

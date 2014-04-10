@@ -37,9 +37,9 @@ namespace Sandwich.WPF
         public ImageViewer(GenericPost gp, BoardBrowserWPF parent)
         {
             InitializeComponent();
-            
+
             _gp = gp;
-            
+
             SessionManager.RegisterFile(gp.file);
 
             this.TParent = parent;
@@ -56,7 +56,43 @@ namespace Sandwich.WPF
 
         void FileLoader_FileLoaded()
         {
-            this.Dispatcher.Invoke((Action)delegate { this.picbox.SetImage(FileLoader.Extension, FileLoader.Image); });
+            this.Dispatcher.Invoke((Action)delegate
+            {
+                if (this._gp.file.ext == "webm")
+                {
+                    MediaElement me = new MediaElement();
+                    me.Source = new Uri(System.IO.Path.Combine(Core.img_dir, Common.MD5(_gp.file.FullImageLink) + ".webm"), UriKind.Absolute);
+                    me.IsHitTestVisible = false;
+
+
+                    me.LoadedBehavior = MediaState.Manual;
+                    me.MediaEnded += (s, e) =>
+                    {
+                        me.Position = TimeSpan.Zero;
+                        me.Play();
+                    };
+
+                    me.Play();
+
+                    this.zap_c.Content = me;
+
+                }
+                else if (this._gp.file.ext == "swf")
+                {
+                    WebBrowser we = new WebBrowser();
+                    //init_flash_player();
+                    string file_path = System.IO.Path.Combine(Core.img_dir, Common.MD5(_gp.file.FullImageLink) + ".swf");
+                    string d = new Uri(file_path, UriKind.Absolute).ToString();
+                    we.Navigate(d);
+                    this.zap_c.Content = we;
+                    //FlashPlayer.LoadMovie(0, d);
+                    //FlashPlayer.Play();
+                }
+                else
+                {
+                    this.picbox.SetImage(FileLoader.Extension, FileLoader.Image);
+                }
+            });
         }
 
         private void file_FileProgressChanged(double p)
@@ -65,8 +101,13 @@ namespace Sandwich.WPF
 
             this.progress_text.Dispatcher.Invoke((Action)delegate
             {
-                this.progress_text.Content = string.Format("{0}% {1} of {2}", Math.Round(p, 2, MidpointRounding.ToEven), Common.format_size_string(downloaded), formatted_size);
-                this.progressBar.Value = downloaded;
+
+                try
+                {
+                    this.progress_text.Content = string.Format("{0}% {1} of {2}", Math.Round(p, 2, MidpointRounding.ToEven), Common.format_size_string(downloaded), formatted_size);
+                    this.progressBar.Value = downloaded;
+                }
+                catch { }
             });
         }
 
@@ -108,7 +149,50 @@ namespace Sandwich.WPF
             this.picbox.ClearImage();
             FileLoader.Dispose();
             SessionManager.UnRegisterFile(this._gp.file);
+
+            if (_gp.file.ext == "webm")
+            {
+                MediaElement me = (MediaElement)zap_c.Content;
+                me.IsEnabled = false;
+                me.Stop();
+                me.Source = null;
+            }
+            if (_gp.file.ext == "swf")
+            {
+                if (this.zap_c.Content.GetType() == typeof(WebBrowser))
+                {
+                    ((WebBrowser)this.zap_c.Content).Navigate("about:blank");
+                }
+                //FlashPlayer.LoadMovie(0, "");
+                //FlashPlayer.Dispose();
+            }
         }
+
+        //private AxShockwaveFlashObjects.AxShockwaveFlash FlashPlayer
+        //{
+        //    get
+        //    {
+        //        if (zap_c.Content.GetType() == typeof(System.Windows.Forms.Integration.WindowsFormsHost))
+        //        {
+        //            System.Windows.Forms.Integration.WindowsFormsHost host = (System.Windows.Forms.Integration.WindowsFormsHost)zap_c.Content;
+
+        //            return (AxShockwaveFlashObjects.AxShockwaveFlash)host.Child;
+        //        }
+        //        else { return null; }
+        //    }
+        //}
+
+        //private void init_flash_player()
+        //{
+        //    System.Windows.Forms.Integration.WindowsFormsHost host = new System.Windows.Forms.Integration.WindowsFormsHost();
+
+        //    AxShockwaveFlashObjects.AxShockwaveFlash flash = new AxShockwaveFlashObjects.AxShockwaveFlash();
+        //    flash.CreateControl();
+
+        //    host.Child = flash;
+        //    zap_c.Content = host;
+        //}
+
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {

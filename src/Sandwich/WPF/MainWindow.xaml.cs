@@ -23,7 +23,7 @@ namespace Sandwich.WPF
         public MainWindow()
         {
             InitializeComponent();
-
+           
             //this.bg.Source = new BitmapImage(new Uri("pack://application:,,,/Sandwich;component/Resources/bgs/5.png", UriKind.Absolute));
 
             foreach (string a in BoardInfo.BoardsLetters)
@@ -201,5 +201,6 @@ namespace Sandwich.WPF
         {
             this.settingsPanel.IsOpen = true;
         }
+
     }
 }

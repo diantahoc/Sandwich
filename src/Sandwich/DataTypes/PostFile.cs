@@ -37,9 +37,9 @@ namespace Sandwich
 
         private byte[] thumb_data;
 
-        private void init_thumb_bg() 
+        private void init_thumb_bg()
         {
-            if (this.ThumbImageLoader == null) 
+            if (this.ThumbImageLoader == null)
             {
                 this.ThumbImageLoader = new BackgroundWorker();
                 this.ThumbImageLoader.DoWork += new DoWorkEventHandler(this.backgroundWorker1_DoWork);
@@ -140,8 +140,19 @@ namespace Sandwich
 
         public void BeginThumbnailLoading()
         {
-            init_thumb_bg();
-            if (!ThumbImageLoader.IsBusy) { ThumbImageLoader.RunWorkerAsync(); }
+            if (this.ThumbLink == "")
+            {
+                this._image = Common.NoThumbImage;
+                if (FileLoaded != null)
+                {
+                    FileLoaded(this);
+                }
+            }
+            else
+            {
+                init_thumb_bg();
+                if (!ThumbImageLoader.IsBusy) { ThumbImageLoader.RunWorkerAsync(); }
+            }
         }
 
         #endregion
@@ -155,8 +166,6 @@ namespace Sandwich
             {
                 if (_image == null)
                 {
-                    /*if (!ThumbImageLoader.IsBusy) { ThumbImageLoader.RunWorkerAsync(); };
-                    return Properties.Resources.progressindicator;*/
                     throw new Exception("Thumbnail image has not been loaded");
                 }
                 else
@@ -166,7 +175,6 @@ namespace Sandwich
             }
         }
 
-
         private string custom_t_link = "";//HACK
 
         public string ThumbLink
@@ -175,7 +183,14 @@ namespace Sandwich
             {
                 if (custom_t_link == "")
                 {
-                    return Core.thumbLink.Replace("#", this.board).Replace("$", this.thumbnail_tim);
+                    if (this.board == "f")
+                    {
+                        return "";
+                    }
+                    else
+                    {
+                        return Core.thumbLink.Replace("#", this.board).Replace("$", this.thumbnail_tim);
+                    }
                 }
                 else
                 {
@@ -193,7 +208,14 @@ namespace Sandwich
             {
                 if (custom_full_link == "")
                 {
-                    return Core.imageLink.Replace("#", this.board).Replace("$", this.thumbnail_tim + "." + this.ext);
+                    if (this.board == "f")
+                    {
+                        return Core.imageLink.Replace("#", this.board).Replace("$", this.filename + "." + this.ext);
+                    }
+                    else
+                    {
+                        return Core.imageLink.Replace("#", this.board).Replace("$", this.thumbnail_tim + "." + this.ext);
+                    }
                 }
                 else
                 {
@@ -218,7 +240,7 @@ namespace Sandwich
         public void Dispose()
         {
             thumb_data = null;
-          
+
             if (memIO != null)
             {
                 memIO.Dispose();

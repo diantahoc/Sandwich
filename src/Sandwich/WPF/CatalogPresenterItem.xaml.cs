@@ -20,15 +20,19 @@ namespace Sandwich
     /// </summary>
     public partial class CatalogPresenterItem : UserControl, IDisposable
     {
-        CatalogItem _ci;
-
         CatalogPresenter my_parent;
+
+        static string url = "http://boards.4chan.org/{0}/res/{1}#p{1}";
 
         public CatalogPresenterItem(CatalogItem ci, CatalogPresenter parent)
         {
             InitializeComponent();
-            
+
             my_parent = parent;
+
+            this.CatI = ci;
+
+            this.image1.Click += (s, e) => { if (PictureBoxClicked != null) { PictureBoxClicked(this.CatI); } };
 
             if (ci.file != null)
             {
@@ -36,21 +40,20 @@ namespace Sandwich
                 ci.file.BeginThumbnailLoading();
 
                 ContextMenu me = new ContextMenu();
-                
+
                 MenuItem a = new MenuItem();
-                
+
                 a.Header = "Open Image";
-                a.Click += new RoutedEventHandler(a_Click);
+                a.Click += (s, e) => { my_parent.TParent.OpenImage(this.CatI, false); };
 
                 me.Items.Add(a);
 
                 MenuItem b = new MenuItem() { Header = "Copy 4chan URL" };
-                b.Click += new RoutedEventHandler(b_Click);
+                b.Click += (s, e) => { Clipboard.SetText(String.Format(url, this.CatI.board, this.CatI.PostNumber)); };
 
                 me.Items.Add(b);
 
                 this.image1.ContextMenu = me;
-
             }
             else
             {
@@ -58,107 +61,35 @@ namespace Sandwich
                 this.gr.Children.Remove(this.image1);
             }
 
-            this.label1.Content = String.Format("R : {0} / I: {1}", ci.text_replies, ci.image_replies);
+            this.label1.Content = String.Format("R : {0} / I: {1}", this.CatI.text_replies, this.CatI.image_replies);
 
             if (!string.IsNullOrEmpty(ci.comment))
             {
-                this.ToolTip = Common.DecodeHTML(ci.comment);
+                this.ToolTip = Common.DecodeHTML(this.CatI.comment);
             }
-            _ci = ci;
+
         }
 
-        void b_Click(object sender, RoutedEventArgs e)
-        {
-            string url = "http://boards.4chan.org/{0}/res/{1}#p{1}";
-            Clipboard.SetText(String.Format(url, this._ci.board, this._ci.PostNumber));
-        }
-
-        void a_Click(object sender, RoutedEventArgs e)
-        {
-            my_parent.TParent.OpenImage(_ci.ToGenericPost(), false);
-        }
-
-        void file_FileLoaded(PostFile sender)
+        private void file_FileLoaded(PostFile sender)
         {
             this.gr.Children.Remove(this.status);
-            this.image1.Source = _ci.file.Image; ;
+            this.image1.Source = this.CatI.file.Image; ;
             this.image1.Visibility = System.Windows.Visibility.Visible;
         }
 
-        DateTime a;
-
-        private void image1_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            if (e.LeftButton == MouseButtonState.Released)
-            {
-                TimeSpan diff = DateTime.Now - a;
-                if (diff.TotalMilliseconds <= Common.click_duration)
-                {
-
-                    // _
-                    if (PictureBoxClicked != null) { PictureBoxClicked(_ci); }
-                }
-            }
-        }
-
-        private void image1_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.LeftButton == MouseButtonState.Pressed) { a = DateTime.Now; }
-        }
-
-
         public event Common.ThreadLoadRequest PictureBoxClicked;
 
-        public int PostNumber
-        {
-            get { return _ci.PostNumber; }
-        }
-
-        public string Comment
-        {
-            get
-            {
-                if (String.IsNullOrEmpty(_ci.comment))
-                {
-                    return "";
-                }
-                else
-                {
-                    return _ci.comment;
-                }
-            }
-        }
-
-        public string Subject
-        {
-            get
-            {
-                if (String.IsNullOrEmpty(_ci.subject))
-                {
-                    return "";
-                }
-                else
-                {
-                    return _ci.subject;
-                }
-            }
-        }
-
-
-
-        public DateTime Time { get { return _ci.time; } }
-
-        public int TotalReplies { get { return _ci.TotalReplies; } }
+        public CatalogItem CatI { get; private set; }
 
         public DateTime LastReplyTime
         {
             get
             {
-                if (_ci.trails != null)
+                if (this.CatI.trails != null)
                 {
-                    return _ci.trails.Last().time;
+                    return this.CatI.trails.Last().time;
                 }
-                else { return _ci.time; }
+                else { return this.CatI.time; }
             }
         }
 
@@ -180,11 +111,12 @@ namespace Sandwich
             this.image1.Height = s - 50;
         }
 
-        public void Dispose() 
+        public void Dispose()
         {
-            if (_ci.file != null) 
+            if (this.CatI.file != null)
             {
-                _ci.file.Dispose();
+                this.CatI.file.FileLoaded -= this.file_FileLoaded;
+                this.CatI.file.Dispose();
             }
         }
     }

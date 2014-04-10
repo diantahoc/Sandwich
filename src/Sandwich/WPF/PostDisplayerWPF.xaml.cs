@@ -131,7 +131,7 @@ namespace Sandwich
             {
                 this.postTextRenderer1.QuoteClicked = this.QuoteClicked;
 
-                postTextRenderer1.Render(gp.GetType() == typeof(Reply) ? ((Reply)(gp)).CommentTokens : Sandwich.Helpers.ThreadHelper.TokenizeComment(gp));
+                postTextRenderer1.Render(gp.CommentTokens);
             }
 
             //backlinks
@@ -251,7 +251,7 @@ namespace Sandwich
             this.Effect = null;
         }
 
-        public void Focus()
+        public new void Focus()
         {
             this.Effect = ElementsColors.FocusedPostEffect;
         }

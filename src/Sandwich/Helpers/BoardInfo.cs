@@ -750,6 +750,18 @@ namespace Sandwich
 
             });
 
+            data.Add("f", new BoardInfoContainer
+            {
+                Letter = "f",
+                Description = "Flash",
+                Bumplimit = 300,
+                ImageLimit = 150,
+                PagesCount = 11,
+                ExtraFiles = new string[]{"swf"},
+                AllowedFiles = null
+
+            });
+
             //data.Add("y", new BoardInfoContainer
             //{
             //    Letter = "y",

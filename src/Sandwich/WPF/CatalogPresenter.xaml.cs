@@ -82,7 +82,7 @@ namespace Sandwich
         {
             if (e.Cancelled)
             {
-                MessageBox.Show("Cannot refresh the catalog, please try again", "Error");
+                MessageBox.Show(string.Format("Cannot refresh the catalog (error: '{0}'), please try again", ((Exception)e.Result).Message), "Error");
             }
             else
             {
@@ -96,8 +96,9 @@ namespace Sandwich
             {
                 data = Core.GetCatalog(this.Board);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                e.Result = ex;
                 e.Cancel = true;
                 return;
             }
@@ -196,7 +197,7 @@ namespace Sandwich
                     {
                         CatalogPresenterItem c = (CatalogPresenterItem)(ci);
 
-                        if (r.IsMatch(c.Comment) | r.IsMatch(c.Subject))
+                        if (r.IsMatch(c.CatI.comment) | r.IsMatch(c.CatI.subject))
                         {
                             c.Visibility = System.Windows.Visibility.Visible;
                         }
@@ -252,16 +253,16 @@ namespace Sandwich
                             sorted = data.OrderBy(x => x.LastReplyTime);
                             break;
                         case 1:
-                            sorted = data.OrderBy(x => x.TotalReplies);
+                            sorted = data.OrderBy(x => x.CatI.TotalReplies);
                             break;
                         case 2:
-                            sorted = data.OrderBy(x => x.Time);
+                            sorted = data.OrderBy(x => x.CatI.time);
                             break;
                         case 3:
                             sorted = data.OrderBy(x => x.LastReplyTime);
                             break;
                         case 4:
-                            sorted = data.OrderBy(x => x.PostNumber);
+                            sorted = data.OrderBy(x => x.CatI.PostNumber);
                             break;
                         default:
                             return;

@@ -130,8 +130,6 @@ namespace Sandwich.ArchiveExtensions
 
                 PostFile pf = new PostFile();
 
-
-
                 pf.board = t.board;
 
                 HtmlNode file_infos_span = node.ChildNodes[1];
@@ -279,7 +277,6 @@ namespace Sandwich.ArchiveExtensions
             if (t.email == null) { t.email = ""; }
             if (t.subject == null) { t.subject = ""; }
             if (t.trip == null) { t.trip = ""; }
-
 
             //-----------------------------
 

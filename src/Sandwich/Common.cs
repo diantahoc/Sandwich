@@ -4,17 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Windows.Media.Imaging;
 using System.Security.Cryptography;
-
+using Sandwich.Helpers;
 namespace Sandwich
 {
     public static class Common
     {
-
         public static BitmapImage ErrorImage;
         public static BitmapImage OptionImage;
+        public static BitmapImage NoThumbImage;
 
-        private static MD5CryptoServiceProvider md5;
-        private static HtmlAgilityPack.HtmlDocument doc;
         //public static System.Text.RegularExpressions.Regex quoteMatcher;
 
         static Common()
@@ -25,8 +23,8 @@ namespace Sandwich
             OptionImage = new BitmapImage(new Uri("pack://application:,,,/Sandwich;component/Resources/Icons/appbar.settings.png", UriKind.Absolute));
             OptionImage.Freeze();
 
-            md5 = new MD5CryptoServiceProvider();
-            doc = new HtmlAgilityPack.HtmlDocument();
+            NoThumbImage = new BitmapImage(new Uri("pack://application:,,,/Sandwich;component/Resources/nothumb.png", UriKind.Absolute));
+            NoThumbImage.Freeze();
 
            // quoteMatcher = new System.Text.RegularExpressions.Regex(">>[0-9]+", System.Text.RegularExpressions.RegexOptions.Compiled |  System.Text.RegularExpressions.RegexOptions.Singleline);
         }
@@ -35,24 +33,8 @@ namespace Sandwich
         {
             if (!(String.IsNullOrEmpty(text) || String.IsNullOrWhiteSpace(text)))
             {
-                doc.LoadHtml(text);
-
-                StringBuilder sb = new StringBuilder();
-
-                for (int i = 0; i < doc.DocumentNode.ChildNodes.Count; i++)
-                {
-                    HtmlAgilityPack.HtmlNode node = doc.DocumentNode.ChildNodes[i];
-                    if (node.Name == "br")
-                    {
-                        sb.AppendLine();
-                    }
-                    else
-                    {
-                        sb.Append(node.InnerText);
-                    }
-                }
-
-                return System.Web.HttpUtility.HtmlDecode(sb.ToString());
+                HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument(); doc.LoadHtml(text);
+                return System.Web.HttpUtility.HtmlDecode(ThreadHelper.GetNodeText(doc.DocumentNode));
             }
             else
             {
@@ -89,15 +71,12 @@ namespace Sandwich
             return UnixEpoch.AddSeconds(timestamp);
         }
 
-        //public static string MD5(System.IO.Stream s)
-        //{
-        //    System.Security.Cryptography.MD5CryptoServiceProvider md5s = new System.Security.Cryptography.MD5CryptoServiceProvider();
-        //    return ByteArrayToString(md5s.ComputeHash(s));
-        //}
-
         public static string MD5(string s)
         {
-            return ByteArrayToString(md5.ComputeHash(Encoding.ASCII.GetBytes(s)));
+            using (MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider())
+            {
+                return ByteArrayToString(md5.ComputeHash(Encoding.ASCII.GetBytes(s)));
+            }
         }
 
         public static string ByteArrayToString(byte[] arrInput)
@@ -155,6 +134,12 @@ namespace Sandwich
                 return Convert.ToString(size);
             }
         }
+
+        public static string format_size_string(int size) 
+        {
+            return format_size_string(Convert.ToDouble(size));
+        }
+
 
     }
 

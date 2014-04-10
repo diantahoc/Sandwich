@@ -13,11 +13,11 @@ namespace Sandwich
     {
         private bool _disposed = false;
 
-        private Dictionary<int, Reply> _childs;
+        private Dictionary<int, GenericPost> _childs;
 
         public ThreadContainer(Thread instance)
         {
-            _childs = new Dictionary<int, Reply>();
+            _childs = new Dictionary<int, GenericPost>();
             this.Instance = instance;
 
             this.Title = ThreadHelper.Guess_Post_Title(instance);
@@ -35,37 +35,33 @@ namespace Sandwich
                 }
                 else
                 {
-                    Reply r = new Reply(this.Instance, reply);
-
-                    CommentToken[] tokens = ThreadHelper.TokenizeComment(reply);
-
-                    foreach (CommentToken token in tokens)
+                    foreach (CommentToken token in reply.CommentTokens)
                     {
                         if (token.Type == CommentToken.TokenType.Quote)
                         {
                             int id = Convert.ToInt32(token.TokenData);
                             if (id == this.Instance.PostNumber) //if quoting op
                             {
-                                this.Instance.MarkAsQuotedBy(r.PostNumber);
+                                this.Instance.MarkAsQuotedBy(reply.PostNumber);
                             }
-                            else if (id == r.PostNumber) //if quoting self
+                            else if (id == reply.PostNumber) //if quoting self
                             {
-                                r.MarkAsQuotedBy(id);
+                                reply.MarkAsQuotedBy(id);
                             }
                             else
                             {
-                                Reply qq = GetPost(Convert.ToInt32(token.TokenData));
-                                if (qq != null) { qq.MarkAsQuotedBy(r.PostNumber); }
+                                GenericPost qq = GetPost(Convert.ToInt32(token.TokenData));
+                                if (qq != null) { qq.MarkAsQuotedBy(reply.PostNumber); }
                             }
                         }
                     }
 
-                    this._childs.Add(reply.PostNumber, r);
+                    this._childs.Add(reply.PostNumber, reply);
                 }
             }
         }
 
-        public Reply GetPost(int id)
+        public GenericPost GetPost(int id)
         {
             if (!_disposed)
             {
@@ -89,7 +85,7 @@ namespace Sandwich
             }
         }
 
-        public Reply[] Replies { get { return _childs.Values.ToArray(); } }
+        public GenericPost[] Replies { get { return _childs.Values.ToArray(); } }
 
         public string Title { get; private set; }
 
@@ -97,7 +93,7 @@ namespace Sandwich
         {
             if (this.Instance.file != null) { this.Instance.file.Dispose(); }
            
-            foreach(Reply a in _childs.Values)
+            foreach(GenericPost a in _childs.Values)
             {
                  if (a.file != null)
                    a.file.Dispose();

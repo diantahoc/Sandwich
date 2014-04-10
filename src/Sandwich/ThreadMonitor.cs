@@ -14,7 +14,6 @@ namespace Sandwich
           
         }
 
-
     }
 
     public class MonitoredThread 
@@ -90,7 +89,7 @@ namespace Sandwich
 
                     for (; last_index_before_new_replies < new_replies_count; last_index_before_new_replies++) 
                     {
-                        Reply f = new_tc.Replies[last_index_before_new_replies];
+                        GenericPost f = new_tc.Replies[last_index_before_new_replies];
                         
                         if (f.file != null) { QueueFile(f.file); }
 

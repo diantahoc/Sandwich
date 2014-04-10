@@ -13,6 +13,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO;
 using WpfAnimatedGif;
+using Sandwich.WPF;
 
 namespace Sandwich
 {
@@ -26,11 +27,11 @@ namespace Sandwich
             InitializeComponent();
         }
 
-        private Image im;
+        private ClickableImage im;
 
         public void SetImage(string ext, BitmapImage image)
         {
-            im = new Image();
+            im = new ClickableImage();
             im.Stretch = Stretch.Uniform;
 
             if (ext == "gif")
@@ -76,9 +77,9 @@ namespace Sandwich
             this.Content = im;
         }
 
-        public void ClearImage() 
+        public void ClearImage()
         {
-            if (im != null) 
+            if (im != null)
             {
                 im.ClearValue(Image.SourceProperty);
             }
@@ -97,59 +98,26 @@ namespace Sandwich
 
         public void ThumnailMode(GenericPost gp)
         {
+            _gp = gp;
             im.ContextMenu = null;
-
             im.MaxHeight = Convert.ToDouble(gp.file.thumbH);
             im.MaxWidth = Convert.ToDouble(gp.file.thumbW);
 
             if (gp.file.FullImageLink != "nofile")
             {
                 this.Cursor = Cursors.Hand;
-                im.MouseLeftButtonDown += new MouseButtonEventHandler(q_MouseDown);
-                im.MouseLeftButtonUp += new MouseButtonEventHandler(q_MouseUp);
-            }
-
-            _gp = gp;
-        }
-
-        DateTime left;
-        // DateTime right;
-
-        void q_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            if (ImageClicked != null)
-            {
-                if (e.LeftButton == MouseButtonState.Released)
+                im.Click += (s, e) =>
                 {
-                    if ((DateTime.Now - left).TotalMilliseconds <= 150)
-                    {
-                        ImageClicked(_gp, false);
-                    }
-                }
-                if (e.MiddleButton == MouseButtonState.Released)
+                    if (ImageClicked != null) { ImageClicked(_gp, true); }
+                };
+
+                im.MouseWheelClick += (s, e) =>
                 {
-                    if ((DateTime.Now - left).TotalMilliseconds <= 150)
-                    {
-                        ImageClicked(_gp, false);
-                    }
-                }
-                // if (e.RightButton == MouseButtonState.Pressed) { }
+                    if (ImageClicked != null) { ImageClicked(_gp, false); }
+                };
             }
-        }
 
-        void q_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.LeftButton == MouseButtonState.Pressed)
-            {
-                left = DateTime.Now;
-            }
-            if (e.MiddleButton == MouseButtonState.Pressed)
-            {
-                left = DateTime.Now;
-            }
-            // if (e.RightButton == MouseButtonState.Pressed) { }
         }
-
 
         public event Common.ImageClickEvent ImageClicked;
 

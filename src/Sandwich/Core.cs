@@ -29,14 +29,12 @@ namespace Sandwich
         public static string cache_dir = Path.Combine(temporary_folder, "sandwich_cache");
 
         private static string api_cache_dir = Path.Combine(cache_dir, "api");
-        private static string img_dir = Path.Combine(cache_dir, "img");
+        public static string img_dir = Path.Combine(cache_dir, "img");
         private static string flags_dir = Path.Combine(cache_dir, "flags");
 
         public static string misc_dir = Path.Combine(Core.cache_dir, "misc");
         public static string session_dir = Path.Combine(Core.cache_dir, "session");
         public static string log_dir = Path.Combine(Core.cache_dir, "logs");
-
-        //public static List<System.Threading.Thread> download_queue = new List<System.Threading.Thread>(250);
 
         private static Dictionary<string, System.Windows.Media.Imaging.BitmapImage> flags = new Dictionary<string, System.Windows.Media.Imaging.BitmapImage>();
         private static Amib.Threading.SmartThreadPool stp;
@@ -78,7 +76,8 @@ namespace Sandwich
         public static void Shutdown()
         {
             stp.Shutdown(true, 500);
-
+            //Directory.Delete(img_dir, true);
+            //Directory.Delete(api_cache_dir, true);
             File.WriteAllText(Path.Combine(session_dir, "clean"), "");// mark session shutdown as clean
         }
 
@@ -295,6 +294,12 @@ namespace Sandwich
                 }
             }
 
+            if (data["tag"] != null)
+            {
+                t.Tag = parse_tag(Convert.ToString(data["tag"]));
+            }
+            else { t.Tag = GenericPost.ThreadTag.NoTag; }
+
             if (data["sticky"] != null)
             {
                 t.IsSticky = (data["sticky"].ToString() == "1");
@@ -447,63 +452,9 @@ namespace Sandwich
 
         private static CatalogItem ParseJToken_Catalog(JToken thread, int pagenumber, string board)
         {
-            CatalogItem ci = new CatalogItem();
+            GenericPost base_data = ParseReply(thread, board);
 
-
-            //post number - no
-            ci.PostNumber = Convert.ToInt32(thread["no"]);
-
-            // post time - now
-            ci.time = Common.ParseUTC_Stamp(Convert.ToInt32(thread["time"]));
-
-            //name 
-            if (thread["name"] != null)
-            {
-                ci.name = thread["name"].ToString();
-            }
-            else
-            {
-                ci.name = "";
-            }
-
-
-            if (thread["com"] != null)
-            {
-                ci.comment = thread["com"].ToString();
-            }
-            else
-            {
-                ci.comment = "";
-            }
-
-            if (thread["trip"] != null)
-            {
-                ci.trip = thread["trip"].ToString();
-            }
-            else
-            {
-                ci.trip = "";
-            }
-
-            if (thread["filename"] != null)
-            {
-                PostFile pf = new PostFile()
-                {
-                    filename = thread["filename"].ToString(),
-                    ext = thread["ext"].ToString().Replace(".", ""),
-                    height = Convert.ToInt32(thread["h"]),
-                    width = Convert.ToInt32(thread["w"]),
-                    thumbH = Convert.ToInt32(thread["tn_h"]),
-                    thumbW = Convert.ToInt32(thread["tb_w"]),
-                    owner = ci.PostNumber,
-                    thumbnail_tim = thread["tim"].ToString(),
-                    board = board,
-                    hash = thread["md5"].ToString(),
-                    size = Convert.ToInt32(thread["fsize"]),
-                };
-
-                ci.file = pf;
-            }
+            CatalogItem ci = new CatalogItem(base_data);
 
             if (thread["last_replies"] != null)
             {
@@ -513,11 +464,17 @@ namespace Sandwich
 
                 foreach (Newtonsoft.Json.Linq.JObject j in li)
                 {
-                    repl.Add(ParseReply(j, board)); // HACK: parent must not be null.
+                    repl.Add(ParseReply(j, board));
                 }
 
                 ci.trails = repl.ToArray();
             }
+
+            if (thread["tag"] != null)
+            {
+                ci.Tag = parse_tag(Convert.ToString(thread["tag"]));
+            }
+            else { ci.Tag = GenericPost.ThreadTag.NoTag; }
 
             ci.image_replies = Convert.ToInt32(thread["images"]);
             ci.text_replies = Convert.ToInt32(thread["replies"]);
@@ -526,14 +483,34 @@ namespace Sandwich
             ci.board = board;
 
             return ci;
-            /*{
-           "tim": 1385141348984,
-           "time": 1385141348,
-           "resto": 0,
+            /*
            "bumplimit": 0,
            "imagelimit": 0,
            "omitted_posts": 1,
            "omitted_images": 0,*/
+        }
+
+        private static GenericPost.ThreadTag parse_tag(string tag)
+        {
+            switch (tag)
+            {
+                case "Other":
+                    return GenericPost.ThreadTag.Other;
+                case "Anime":
+                    return GenericPost.ThreadTag.Anime;
+                case "Game":
+                    return GenericPost.ThreadTag.Game;
+                case "Hentai":
+                    return GenericPost.ThreadTag.Hentai;
+                case "Japanese":
+                    return GenericPost.ThreadTag.Japanese;
+                case "Loop":
+                    return GenericPost.ThreadTag.Loop;
+                case "Porn":
+                    return GenericPost.ThreadTag.Porn;
+                default:
+                    return GenericPost.ThreadTag.Unknown;
+            }
         }
 
         #endregion
@@ -542,7 +519,7 @@ namespace Sandwich
 
         public static byte[] LoadURL(string url, Common.ProgressChanged cpc, bool use_cache)
         {
-            string local_file = Path.Combine(img_dir, Common.MD5(url));
+            string local_file = Path.Combine(img_dir, string.Format("{0}.{1}", Common.MD5(url), url.Split('.').Last()));
 
             if (File.Exists(local_file) && use_cache)
             {
@@ -632,7 +609,7 @@ namespace Sandwich
 
             if (File.Exists(file_path))
             {
-                d = parse_datetime(File.ReadAllText(file_path));
+                d = XmlConvert.ToDateTime(File.ReadAllText(file_path), XmlDateTimeSerializationMode.Local);
             }
             else
             {
@@ -668,7 +645,7 @@ namespace Sandwich
                 string lm = wbr.Headers["Last-Modified"];
                 DateTime lmm = DateTime.Parse(lm);
 
-                File.WriteAllText(file_path, datetime_tostring(lmm));
+                File.WriteAllText(file_path, XmlConvert.ToString(lmm, XmlDateTimeSerializationMode.Local));
                 File.WriteAllText(file_path_data, text);
 
                 result = new APIResponse(text, APIResponse.ErrorType.NoError);
@@ -769,16 +746,6 @@ namespace Sandwich
             if (File.Exists(s)) { File.Delete(s); }
         }
 
-        private static DateTime parse_datetime(string s)
-        {
-            return XmlConvert.ToDateTime(s, XmlDateTimeSerializationMode.Local);
-        }
-
-        private static string datetime_tostring(DateTime s)
-        {
-            return XmlConvert.ToString(s, XmlDateTimeSerializationMode.Local);
-        }
-
         public static ReportStatus ReportPost(string board, int post_id, ReportReason reason, SolvedCaptcha captcha)
         {
             string url = String.Format(@"https://sys.4chan.org/{0}/imgboard.php?mode=report&no={1}", board.ToLower(), post_id.ToString());
@@ -830,11 +797,17 @@ namespace Sandwich
             string response_text;
 
             using (var response = request.GetResponse())
-            using (var responseStream = response.GetResponseStream())
-            using (var stream = new MemoryStream())
             {
-                responseStream.CopyTo(stream);
-                response_text = System.Text.Encoding.UTF8.GetString(stream.ToArray());
+                using (var responseStream = response.GetResponseStream())
+                {
+                    using (var stream = new MemoryStream())
+                    {
+                        {
+                            responseStream.CopyTo(stream);
+                            response_text = System.Text.Encoding.UTF8.GetString(stream.ToArray());
+                        }
+                    }
+                }
             }
 
             ReportStatus status = ReportStatus.Unkown;
@@ -981,45 +954,37 @@ namespace Sandwich
         }
     }
 
-    public class CatalogItem
+    public class CatalogItem : GenericPost
     {
-        public int PostNumber;
-        public DateTime time;
-        public string comment;
-        public string subject;
-        public string trip;
-        public string name;
-        public string email;
-        public string board;
+        public CatalogItem() { }
+
+        public CatalogItem(GenericPost base_data)
+        {
+            base.board = base_data.board;
+            base.capcode = base_data.capcode;
+            base.comment = base_data.comment;
+            base.country_flag = base_data.country_flag;
+            base.country_name = base_data.country_name;
+            base.email = base_data.email;
+            base.file = base_data.file;
+            base.name = base_data.name;
+            base.PostNumber = base_data.PostNumber;
+            base.subject = base_data.subject;
+            base.Tag = base_data.Tag;
+            base.time = base_data.time;
+            base.trip = base_data.trip;
+            base.type = base_data.type;
+            foreach (int i in base_data.QuotedBy) { base.MarkAsQuotedBy(i); }
+        }
+
         public int image_replies;
         public int text_replies;
 
         public int page_number;
 
-        public PostFile file;
-
         public int TotalReplies { get { return image_replies + text_replies; } }
 
         public GenericPost[] trails;
-
-        public GenericPost ToGenericPost()
-        {
-            GenericPost gp = new GenericPost()
-            {
-                PostNumber = this.PostNumber,
-                time = this.time,
-                subject = this.subject,
-                comment = this.comment,
-                trip = this.trip,
-                name = this.name,
-                email = this.email,
-                board = this.board,
-                file = this.file,
-            };
-
-            return gp;
-        }
-
     }
 
     public class Thread : GenericPost

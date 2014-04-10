@@ -366,7 +366,7 @@ namespace Sandwich
                     {
                         il.Add(tc.Instance.file.FullImageLink);
                     }
-                    foreach (Reply gp in tc.Replies)
+                    foreach (GenericPost gp in tc.Replies)
                     {
                         if (gp.file != null)
                         {

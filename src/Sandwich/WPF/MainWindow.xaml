@@ -1,4 +1,4 @@
-﻿<Window  x:Class="Sandwich.WPF.MainWindow"
+﻿<Window xmlns:my3="clr-namespace:System.Windows.Forms.Integration;assembly=WindowsFormsIntegration"   x:Class="Sandwich.WPF.MainWindow"
     xmlns:my="clr-namespace:ChromeTabs;assembly=ChromeTabs"
     xmlns:my1="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
     xmlns:my2="clr-namespace:Sandwich.WPF"  
@@ -10,7 +10,7 @@
         mc:Ignorable="d" ResizeMode="CanResize" WindowStartupLocation="CenterScreen" Height="580" Width="1000" Closed="Window_Closed" Icon="/Sandwich;component/Resources/icons/dead.png" Title="Sandwich" FontFamily="Open Sans" FontSize="13">
     <Grid>
         <Image Name="bg" Panel.ZIndex="0" />
-
+        
         <my:ChromeTabControl x:Name="tabs"
                          ItemRemoved="tabs_ItemRemoved" Panel.ZIndex="1">
             <my:ChromeTabItem Header="Main">
@@ -57,7 +57,7 @@
             </my:ChromeTabItem>
         </my:ChromeTabControl>
 
-        <my1:Flyout Name="settingsPanel" Position="Left" Width="200" Header="Options" Panel.ZIndex="2">
+        <my1:Flyout Name="settingsPanel" Position="Left" Width="200" Header="Options" Panel.ZIndex="2" Margin="0,1,0,-1">
             <my2:SettingsManager />
         </my1:Flyout>
     </Grid>

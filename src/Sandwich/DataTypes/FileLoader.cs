@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Sandwich.DataTypes
 {
@@ -44,73 +45,68 @@ namespace Sandwich.DataTypes
                 {
                     is_busy = true;
 
-                    bool wait = true;
-
-                    Core.QueueAction((Action)delegate
+                    try
                     {
-                        try
+                        this.ImageData = Core.LoadURL(this.Url, this.FileProgressChanged, use_cache);
+                    }
+                    catch (System.Net.WebException wex)
+                    {
+                        if (wex.Status == System.Net.WebExceptionStatus.Timeout |
+                            wex.Status == System.Net.WebExceptionStatus.SendFailure |
+                            wex.Status == System.Net.WebExceptionStatus.ConnectFailure)
                         {
-                            this.ImageData = Core.LoadURL(this.Url, this.FileProgressChanged, use_cache);
-                        }
-                        catch (System.Net.WebException wex)
-                        {
-                            if (wex.Status == System.Net.WebExceptionStatus.Timeout |
-                                wex.Status == System.Net.WebExceptionStatus.SendFailure |
-                                wex.Status == System.Net.WebExceptionStatus.ConnectFailure)
+                            try
                             {
-                                try
-                                {
-                                    //try again
-                                    this.ImageData = Core.LoadURL(this.Url, this.FileProgressChanged, use_cache);
-                                }
-                                catch (Exception)
-                                {
-                                    this.ImageData = null;
-                                }
+                                //try again
+                                this.ImageData = Core.LoadURL(this.Url, this.FileProgressChanged, use_cache);
+                            }
+                            catch (Exception)
+                            {
+                                this.ImageData = null;
                             }
                         }
-                        catch (Exception)
-                        {
-                            this.ImageData = null;
-                        }
-                        wait = false;
-                    }, Amib.Threading.WorkItemPriority.AboveNormal);
-
-                    while (wait)
+                    }
+                    catch (Exception)
                     {
-                        System.Threading.Thread.Sleep(1000);
+                        this.ImageData = null;
                     }
 
                     if (this.ImageData != null)
                     {
-                        MemoryStream memio = new MemoryStream(ImageData);
-                        try
+                        this.FileData = new MemoryStream(ImageData);
+                        if (this.Extension != "webm")
                         {
-                            BitmapImage bbb = new BitmapImage();
+                            try
+                            {
+                                BitmapImage bbb = new BitmapImage();
 
-                            bbb.BeginInit();
+                                bbb.BeginInit();
 
-                            bbb.CacheOption = BitmapCacheOption.OnLoad;
+                                bbb.CacheOption = BitmapCacheOption.OnLoad;
 
-                            bbb.StreamSource = memio;
+                                bbb.StreamSource = this.FileData;
 
-                            bbb.EndInit();
+                                bbb.EndInit();
 
-                            bbb.Freeze();
+                                bbb.Freeze();
 
-                            this.Image = bbb;
-                        }
-                        catch (Exception)
-                        {
-                            this.Image = Common.ErrorImage;
-                            memio.Dispose();
+                                this.Image = bbb;
+                            }
+                            catch (Exception)
+                            {
+                                this.Image = Common.ErrorImage;
+                                this.FileData.Dispose();
+                            }
                         }
                     }
+
                     if (FileLoaded != null) { FileLoaded(); }
                     is_busy = false;
                 });
             }
         }
+
+        public MemoryStream FileData { get; private set; }
 
         public delegate void FileLoadedEvent();
 
@@ -124,6 +120,10 @@ namespace Sandwich.DataTypes
             {
                 if (this.Image.StreamSource != null) { this.Image.StreamSource.Dispose(); }
                 this.Image = null;
+            }
+            if (this.FileData != null) 
+            {
+                this.FileData.Dispose();
             }
             this.ImageData = null;
             this.FileProgressChanged = null;

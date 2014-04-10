@@ -68,38 +68,16 @@ namespace Sandwich
 
             List<HtmlNode> thumbs = new List<HtmlNode>();
 
-            foreach (HtmlNode htmlNode in doc.DocumentNode.ChildNodes)
+            HtmlNode thumbNode = (HtmlNode)doc.DocumentNode.SelectSingleNode("/html[1]/body[1]/div[6]/section[1]");
+
+            foreach (HtmlNode node in thumbNode.ChildNodes)
             {
-                if (htmlNode.Name == "html")
+                if (node.GetAttributeValue("class", "").Contains("thumbnail"))
                 {
-                    foreach (HtmlNode bodyNode in htmlNode.ChildNodes)
-                    {
-                        if (bodyNode.Name == "body")
-                        {
-                            foreach (HtmlNode wrapNode in bodyNode.ChildNodes)
-                            {
-                                if (wrapNode.Id == "wrap")
-                                {
-                                    foreach (HtmlNode thumbNode in wrapNode.ChildNodes)
-                                    {
-                                        if (thumbNode.Id == "thumbs")
-                                        {
-                                            foreach (HtmlNode node in thumbNode.ChildNodes)
-                                            {
-                                                if (node.GetAttributeValue("class", "").Contains("thumbnail"))
-                                                {
-                                                    thumbs.Add(node);
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    thumbs.Add(node);
                 }
             }
-
+                                            
             List<string> urls = new List<string>();
 
             foreach (HtmlNode thumb in thumbs)
@@ -125,43 +103,10 @@ namespace Sandwich
 
             string url = "";
 
-            foreach (HtmlNode htmlNode in doc.DocumentNode.ChildNodes)
-            {
-                if (htmlNode.Name == "html")
-                {
-                    foreach (HtmlNode bodyNode in htmlNode.ChildNodes)
-                    {
-                        if (bodyNode.Name == "body")
-                        {
-                            foreach (HtmlNode wrapNode in bodyNode.ChildNodes)
-                            {
-                                if (wrapNode.GetAttributeValue("class", "") == "wrap")
-                                {
-                                    foreach (HtmlNode wallsectionNode in wrapNode.ChildNodes)
-                                    {
-                                        if (wallsectionNode.GetAttributeValue("class", "").Contains("wallsection"))
-                                        {
-                                            foreach (HtmlNode contentNode in wallsectionNode.ChildNodes)
-                                            {
-                                                if (contentNode.GetAttributeValue("class", "").Contains("content"))
-                                                {
-                                                    foreach (HtmlNode imgNode in contentNode.ChildNodes)
-                                                    {
-                                                        if (imgNode.Name == "img" & imgNode.GetAttributeValue("class", "").Contains("wall"))
-                                                        {
-                                                            url = imgNode.GetAttributeValue("src", "");
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            HtmlNode imgNode = (HtmlNode)doc.DocumentNode.SelectSingleNode("/html[1]/body[1]/div[4]/div[2]/div[2]/img[1]");
+           
+            url = imgNode.GetAttributeValue("src", "");
+
             return url;
         }
 
