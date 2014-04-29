@@ -189,7 +189,7 @@ namespace Sandwich
                     }
                     else
                     {
-                        return Core.thumbLink.Replace("#", this.board).Replace("$", this.thumbnail_tim);
+                        return string.Format(Core.thumbLink, this.board, this.thumbnail_tim);
                     }
                 }
                 else
@@ -208,13 +208,13 @@ namespace Sandwich
             {
                 if (custom_full_link == "")
                 {
-                    if (this.board == "f")
+                    if (board == "f")
                     {
-                        return Core.imageLink.Replace("#", this.board).Replace("$", this.filename + "." + this.ext);
+                        return string.Format(Core.imageLink, this.board, this.filename, this.ext);
                     }
                     else
                     {
-                        return Core.imageLink.Replace("#", this.board).Replace("$", this.thumbnail_tim + "." + this.ext);
+                        return string.Format(Core.imageLink, this.board, this.thumbnail_tim, this.ext);
                     }
                 }
                 else

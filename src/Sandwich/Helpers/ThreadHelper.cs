@@ -301,7 +301,6 @@ namespace Sandwich.Helpers
             }
         }
 
-
         public static string GetNodeText(HtmlNode node)
         {
             StringBuilder sb = new StringBuilder();

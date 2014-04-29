@@ -18,10 +18,14 @@ namespace Sandwich
 
         #region Variables
 
-        //Links stuffs
-
-        public static string imageLink = @"http://i.4cdn.org/#/src/$";
-        public static string thumbLink = @"http://t.4cdn.org/#/thumb/$s.jpg";
+        /// <summary>
+        /// {0}: board, {1}: tim, {2}: ext
+        /// </summary>
+        public const string imageLink = @"http://i.4cdn.org/{0}/{1}.{2}";
+        /// <summary>
+        /// {0}:board, {1}: tim
+        /// </summary>
+        public const string thumbLink = @"http://t.4cdn.org/{0}/{1}s.jpg";
 
         //Directories stuffs
         private static string temporary_folder = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
@@ -137,6 +141,131 @@ namespace Sandwich
                     return null;
             }
 
+        }
+
+        public static CatalogItem[][] GetCatalogNoAPI(string board)
+        {
+            APIResponse response = LoadAPI(string.Format("http://boards.4chan.org/{0}/catalog", board));
+
+            switch (response.Error)
+            {
+                case APIResponse.ErrorType.NoError:
+                    return new CatalogItem[][] { Parse_Catalog_Page_HTML(response.Data) };
+                case APIResponse.ErrorType.NotFound:
+                    throw new Exception("404");
+                case APIResponse.ErrorType.Other:
+                    throw new Exception(response.Data);
+                default:
+                    return null;
+            }
+        }
+
+        private static CatalogItem[] Parse_Catalog_Page_HTML(string data)
+        {
+            string js_data_xpath = "/html[1]/head[1]/script[3]";
+
+            HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
+
+            doc.LoadHtml(data);
+
+            string js_data = doc.DocumentNode.SelectSingleNode(js_data_xpath).InnerHtml;
+
+            int var_catalog_index = js_data.IndexOf("var catalog = ", 0);
+
+            int var_style_groupe_index = js_data.LastIndexOf("var style_group =");
+
+            string catalog_data = js_data.Remove(var_style_groupe_index);
+
+            catalog_data = catalog_data.Substring(var_catalog_index);
+
+            catalog_data = catalog_data.Remove(0, 14); // 14 = "var catalog = ".Length
+
+            catalog_data = catalog_data.Trim();
+
+            catalog_data = catalog_data.Remove(catalog_data.Length - 1);
+
+            Newtonsoft.Json.Linq.JObject t = Newtonsoft.Json.JsonConvert.DeserializeObject<Newtonsoft.Json.Linq.JObject>(catalog_data);
+
+            List<CatalogItem> threads = new List<CatalogItem>();
+
+            Newtonsoft.Json.Linq.JToken thread_json = t["threads"];
+
+            for (int i = 0, c = thread_json.Count(); i < c; i++)
+            {
+                Newtonsoft.Json.Linq.JProperty thread_prop = (Newtonsoft.Json.Linq.JProperty)thread_json.ElementAt(i);
+
+                CatalogItem ci = new CatalogItem();
+                ci.PostNumber = Convert.ToInt32(thread_prop.Name);
+
+                Newtonsoft.Json.Linq.JToken thread = thread_prop.ElementAt(0);
+
+                ci.board = Convert.ToString(t["slug"]);
+
+                ci.time = Common.ParseUTC_Stamp(Convert.ToInt32(thread["date"]));
+
+                ci.text_replies = Convert.ToInt32(thread["r"]);
+                ci.image_replies = Convert.ToInt32(thread["i"]);
+
+                if (thread["lr"] != null)
+                {
+                    int lr_id = Convert.ToInt32(thread["lr"]["id"]);
+                    if (lr_id != ci.PostNumber)
+                    {
+                        ci.trails = new GenericPost[]
+                        {
+                            new GenericPost()
+                            {
+                                board = ci.board,
+                                PostNumber = lr_id,
+                                time = Common.ParseUTC_Stamp(Convert.ToInt32(thread["lr"]["date"])),
+                                name = HttpUtility.HtmlDecode(Convert.ToString(thread["lr"]["author"]))
+                            }
+                        };
+                    }
+                }
+
+                ci.name = HttpUtility.HtmlDecode(Convert.ToString(thread["author"]));
+                ci.subject = HttpUtility.HtmlDecode(Convert.ToString(thread["sub"]));
+
+                ci.comment = Common.DecodeHTML(Convert.ToString(thread["teaser"]));
+
+                if (thread["trip"] != null)
+                {
+                    ci.trip = HttpUtility.HtmlDecode(Convert.ToString(thread["trip"]));
+                }
+                else { ci.trip = ""; }
+
+                if (thread["capcode"] != null)
+                {
+                    ci.capcode = parse_capcode(Convert.ToString(thread["capcode"]));
+                }
+
+                if (thread["sticky"] != null)
+                {
+                    ci.IsSticky = (Convert.ToInt32(thread["sticky"]) == 1);
+                }
+
+                if (thread["closed"] != null)
+                {
+                    ci.IsClosed = (Convert.ToInt32(thread["closed"]) == 1);
+                }
+
+                ci.email = "";
+
+                if (thread["imgurl"] != null)
+                {
+                    PostFile p = new PostFile();
+                    p.board = ci.board;
+                    p.owner = ci.PostNumber;
+                    p.thumbW = Convert.ToInt32(thread["tn_w"]);
+                    p.thumbH = Convert.ToInt32(thread["tn_h"]);
+                    p.thumbnail_tim = Convert.ToString(thread["imgurl"]);
+                    ci.file = p;
+                }
+
+                threads.Add(ci);
+            }
+            return threads.ToArray();
         }
 
         public static ThreadContainer[] GetPage(string board, int page)
@@ -276,22 +405,7 @@ namespace Sandwich
 
             if (data["capcode"] != null)
             {
-                switch (data["capcode"].ToString())
-                {
-                    /*none, mod, admin, admin_highlight, developer*/
-                    case "admin":
-                    case "admin_highlight":
-                        t.capcode = GenericPost.Capcode.Admin;
-                        break;
-                    case "developer":
-                        t.capcode = GenericPost.Capcode.Developer;
-                        break;
-                    case "mod":
-                        t.capcode = GenericPost.Capcode.Mod;
-                        break;
-                    default:
-                        break;
-                }
+                t.capcode = parse_capcode(Convert.ToString(data["capcode"]));
             }
 
             if (data["tag"] != null)
@@ -338,6 +452,23 @@ namespace Sandwich
             t.time = Common.ParseUTC_Stamp(Convert.ToInt32(data["time"]));
 
             return t;
+        }
+
+        private static GenericPost.Capcode parse_capcode(string cap)
+        {
+            switch (cap.ToLower())
+            {
+                /*none, mod, admin, admin_highlight, developer*/
+                case "admin":
+                case "admin_highlight":
+                    return GenericPost.Capcode.Admin;
+                case "developer":
+                    return GenericPost.Capcode.Developer;
+                case "mod":
+                    return GenericPost.Capcode.Mod;
+                default:
+                    return GenericPost.Capcode.None;
+            }
         }
 
         private static PostFile ParseFile(JToken data, string board)
@@ -439,6 +570,11 @@ namespace Sandwich
             else
             {
                 t.country_name = "";
+            }
+            
+            if (data["capcode"] != null)
+            {
+                t.capcode = parse_capcode(Convert.ToString(data["capcode"]));
             }
 
             t.file = ParseFile(data, board);
@@ -983,7 +1119,8 @@ namespace Sandwich
         public int page_number;
 
         public int TotalReplies { get { return image_replies + text_replies; } }
-
+        public bool IsClosed { get; set; }
+        public bool IsSticky { get; set; }
         public GenericPost[] trails;
     }
 

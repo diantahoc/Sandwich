@@ -9,7 +9,6 @@ namespace Sandwich
 {
    public class GenericPost
     {
-
        public GenericPost() 
        {
            this.type = PostType.FourChan;
