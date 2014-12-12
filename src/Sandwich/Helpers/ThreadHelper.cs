@@ -331,7 +331,7 @@ namespace Sandwich.Helpers
             {
                 if (String.IsNullOrEmpty(t.comment))
                 {
-                    return "/" + t.board + "/ - " + BoardInfo.GetBoardTitle(t.board) + " - " + t.PostNumber.ToString();
+                    return "/" + t.board + "/ - " + t.PostNumber.ToString();
                 }
                 else
                 {

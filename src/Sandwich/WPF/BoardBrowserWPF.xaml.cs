@@ -11,6 +11,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Sandwich.Chans;
+using Sandwich.DataTypes;
 
 namespace Sandwich.WPF
 {
@@ -19,7 +21,7 @@ namespace Sandwich.WPF
     /// </summary>
     public partial class BoardBrowserWPF : UserControl
     {
-        public string Board { get; private set; }
+        public BoardInfo Board { get; private set; }
 
         public string Title { get; set; }
         public BitmapImage Icon { get; set; }
@@ -31,19 +33,23 @@ namespace Sandwich.WPF
 
         QuickReply q;
 
-        public BoardBrowserWPF(string boardletter)
+        public IChan Chan { get; private set; }
+
+        public BoardBrowserWPF(IChan chan, BoardInfo board)
         {
             InitializeComponent();
 
-            this.Board = boardletter;
-            this.Icon = BoardInfo.GetBoardIcon(boardletter);
-            this.board_title = BoardInfo.GetBoardTitle(boardletter);
+            this.Chan = chan;
+            this.Board = board;
+            this.Icon = board.Icon;
+            this.board_title = board.Description;
             this.Title = board_title;
 
-            q = new QuickReply(boardletter);
+            q = new QuickReply(chan, board);
             q.SetValue(Grid.ColumnProperty, 1);
 
             this.qrCon.Content = (q);
+
         }
 
         public void ShowQuickReply(int tid)
@@ -91,7 +97,7 @@ namespace Sandwich.WPF
 
         public void ShowDeletePostDialog(int tid, int id)
         {
-            this.fly.Content = new DeletePostDialog(this.Board, tid, id);
+            this.fly.Content = new DeletePostDialog(this.Chan, this.Board.Letter, tid, id);
             this.fly.Header = "Deleting post: " + id.ToString();
             this.fly.IsOpenChanged += (s, e) =>
             {
@@ -108,6 +114,11 @@ namespace Sandwich.WPF
         }
 
         public void OpenIndex()
+        {
+            MessageBox.Show("Not implemented yet");
+        }
+
+        public void OpenIndex(int page)
         {
             MessageBox.Show("Not implemented yet");
         }

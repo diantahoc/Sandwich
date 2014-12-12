@@ -20,17 +20,22 @@ namespace Sandwich
     /// </summary>
     public partial class PostDisplayerWPF : UserControl
     {
-        private GenericPost _gp;
-        public int PostID { get { return this._gp.PostNumber; } }
+        public GenericPost PostData { get; private set; }
 
-        public PostDisplayerWPF()
+        public ThreadViewerWPF Owner { get; private set; }
+
+        public Chans.IChan Chan { get; private set; }
+
+        public PostDisplayerWPF(ThreadViewerWPF owner)
         {
             InitializeComponent();
+            this.Owner = owner;
+            this.Chan = owner.TParent.Chan;
         }
 
-        public void Init(GenericPost gp)
+        public void LoadData(GenericPost gp)
         {
-            _gp = gp;
+            this.PostData = gp;
 
             if (gp.file != null)
             {
@@ -69,13 +74,13 @@ namespace Sandwich
             MenuItem report_menuitem = new MenuItem() { Header = "Report" };
             report_menuitem.Click += (s, e) =>
             {
-                if (ReportClicked != null) { ReportClicked(this._gp.PostNumber); }
+                this.Owner.PostDisplayer_Report(this.PostData.PostNumber);
             };
 
             MenuItem delete_menuitem = new MenuItem() { Header = "Delete" };
             delete_menuitem.Click += (s, e) =>
             {
-                if (DeleteClicked != null) { DeleteClicked(this._gp.PostNumber); }
+                this.Owner.PostDisplayer_DeleteMenuClicked(this.PostData.PostNumber);
             };
 
             option_menu.ContextMenu.Items.Add(report_menuitem);
@@ -83,7 +88,7 @@ namespace Sandwich
 
             this.postinfoPanel.Children.Add(option_menu);
 
-            if (!String.IsNullOrEmpty(gp.country_flag))
+            if (!string.IsNullOrEmpty(gp.country_flag))
             {
                 this.postinfoPanel.Children.Add(new Image()
                 {
@@ -120,7 +125,11 @@ namespace Sandwich
                 HorizontalContentAlignment = HorizontalAlignment.Center
             };
 
-            post_number.Click += (s, e) => { if (PostTitleClicked != null) { PostTitleClicked(_gp); } };
+            post_number.Click += (s, e) =>
+            {
+                this.Owner.PostDisplayer_PostTitleClicked(this.PostData);
+            };
+
             this.postinfoPanel.Children.Add(post_number);
 
             if (String.IsNullOrEmpty(gp.comment))
@@ -129,7 +138,10 @@ namespace Sandwich
             }
             else
             {
-                this.postTextRenderer1.QuoteClicked = this.QuoteClicked;
+                this.postTextRenderer1.QuoteClicked += (e) =>
+                {
+                    this.Owner.PostDisplayer_QuoteClicked(e);
+                };
 
                 postTextRenderer1.Render(gp.CommentTokens);
             }
@@ -154,10 +166,7 @@ namespace Sandwich
 
             l.Click += (s, e) =>
             {
-                if (this.QuoteClicked != null)
-                {
-                    this.QuoteClicked(Convert.ToInt32(((ClickableLabel)s).Tag));
-                }
+                this.Owner.PostDisplayer_QuoteClicked(Convert.ToInt32(((ClickableLabel)s).Tag));
             };
             return l;
         }
@@ -189,20 +198,26 @@ namespace Sandwich
 
         private void file_FileLoaded(PostFile sender)
         {
-            this.pictureBoxWPF1.SetImage(_gp.file.ext, _gp.file.Image);
+            this.pictureBoxWPF1.SetImage(this.PostData.file.ext, this.PostData.file.Image);
 
-            this.pictureBoxWPF1.ImageClicked += this.ImageClicked;
-            this.pictureBoxWPF1.ThumnailMode(_gp);
+            this.pictureBoxWPF1.ImageClicked += this.Owner.PostDisplayer_ImageClicked;
+
+            this.pictureBoxWPF1.ThumnailMode(this.PostData);
         }
 
-        public Common.ImageClickEvent ImageClicked;
-        public Common.QuoteClickEvent QuoteClicked;
-        public Common.PostTitleClickEvent PostTitleClicked;
+        //public Common.ImageClickEvent ImageClicked;
 
-        public delegate void MDMenuClickedEvent(int id);
+        //public Common.QuoteClickEvent QuoteClicked;
 
-        public MDMenuClickedEvent ReportClicked;
-        public MDMenuClickedEvent DeleteClicked;
+        //public Common.PostTitleClickEvent PostTitleClicked;
+
+
+        //public delegate void MDMenuClickedEvent(int id);
+
+        //public MDMenuClickedEvent ReportClicked;
+
+        //public MDMenuClickedEvent DeleteClicked;
+
 
         private Label get_label(string text, Brush color)
         {
@@ -228,7 +243,7 @@ namespace Sandwich
                 this.pictureBoxWPF1.Visibility = System.Windows.Visibility.Collapsed;
                 this.spoiler.Visibility = System.Windows.Visibility.Visible;
             };
-            this.spoiler.Source = BoardInfo.GetSpoilerImage(this._gp.board);
+            this.spoiler.Source = this.Chan.GetBoardSpoilerImage(this.Owner.Board); 
         }
 
         public void UpdateQuotedBy(int[] i)
@@ -237,9 +252,9 @@ namespace Sandwich
             {
                 foreach (int a in i)
                 {
-                    if (!this._gp.QuotedBy.Contains(a))
+                    if (!this.PostData.QuotedBy.Contains(a))
                     {
-                        this._gp.MarkAsQuotedBy(a);
+                        this.PostData.MarkAsQuotedBy(a);
                         this.postinfoPanel.Children.Add(get_quoted_by_label(a));
                     }
                 }
@@ -256,7 +271,7 @@ namespace Sandwich
             this.Effect = ElementsColors.FocusedPostEffect;
         }
 
-        public bool HasFile { get { return this._gp.file != null; } }
+        public bool HasFile { get { return this.PostData.file != null; } }
 
         public void MarkFileAsDeleted()
         {

@@ -18,11 +18,11 @@ namespace Sandwich.WPF
     /// <summary>
     /// Interaction logic for BoardHomePageWPF.xaml
     /// </summary>
-    public partial class BoardHomePageWPF : UserControl , TabElement
+    public partial class BoardHomePageWPF : UserControl, TabElement
     {
-        public string Board { get; private set; }
+        public BoardInfo Board { get; private set; }
 
-        public int ID {get {return 0;}}
+        public int ID { get { return 0; } }
 
         public BoardBrowserWPF TParent { get; private set; }
 
@@ -36,7 +36,7 @@ namespace Sandwich.WPF
 
         private System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
 
-        public BoardHomePageWPF(string board, BoardBrowserWPF parent)
+        public BoardHomePageWPF(BoardInfo board, BoardBrowserWPF parent)
         {
             InitializeComponent();
 
@@ -44,14 +44,14 @@ namespace Sandwich.WPF
             this.TParent = parent;
             this.Title = "Home Page";
 
-            br = new BoardRss(board);
+            br = new BoardRss(board.Letter);
 
             br.RssLoaded += new BoardRss.RssLoadedEvent(br_RssLoaded);
 
-            title.Content = BoardInfo.GetBoardTitle(board);
+            title.Content = board.Description;
 
             item_menu = new ContextMenu();
-            
+
             MenuItem item1 = new MenuItem();
             item1.Header = "Open threads";
             item1.Click += new RoutedEventHandler(item1_Click);
@@ -87,7 +87,7 @@ namespace Sandwich.WPF
         {
             this.listview1.Items.Clear();
 
-            foreach (Rss.RssItem item in dic) 
+            foreach (Rss.RssItem item in dic)
             {
                 Label a = new Label();
                 a.SetValue(Label.MinHeightProperty, 20d);
@@ -102,8 +102,8 @@ namespace Sandwich.WPF
                 this.listview1.Items.Add(a);
             }
 
-            grbox1.Header = String.Format("Showing latest {0} threads - {1} thread", BoardInfo.GetBoardTitle(this.Board), dic.Count());
-            
+            grbox1.Header = String.Format("Showing latest {0} threads - {1} thread", this.Board.Description, dic.Count());
+
             refreshbutton.IsEnabled = true;
         }
 
@@ -112,14 +112,14 @@ namespace Sandwich.WPF
             this.TParent.OpenThread(Convert.ToInt32(((Label)sender).Tag));
         }
 
-        private void refresh() 
+        private void refresh()
         {
             try
             {
-                grbox1.Header = String.Format("Fetching latest {0} threads", BoardInfo.GetBoardTitle(this.Board));
+                grbox1.Header = String.Format("Fetching latest {0} threads", this.Board.Description);
                 br.Load();
             }
-            catch (Exception) 
+            catch (Exception)
             {
                 grbox1.Header = "An error has been occured while trying to load threads. Please try again";
             }
@@ -149,39 +149,29 @@ namespace Sandwich.WPF
 
         private void Button_Click_3(object sender, RoutedEventArgs e)
         {
-            if (!String.IsNullOrEmpty(textbox1.Text)) 
+            if (!String.IsNullOrEmpty(textbox1.Text))
             {
-                if (textbox1.Text.ToLower().StartsWith("http"))
+                if (Common.IsNumeric(textbox1.Text)) 
                 {
-                    //http://boards.4chan.org/g/res/39075359
-                    string temp = textbox1.Text.Replace("https://", "").Replace("http://","").ToLower();
-                    //boards.4chan.org/g/res/int
-                    // 0               1  2  3 
-                    string[] data = temp.Split('/');
-                    if (data[1] == this.Board)
+                    this.TParent.OpenThread(Int32.Parse(textbox1.Text));
+                }
+                else if (this.TParent.Chan.ValidateURL(textbox1.Text))
+                {
+                    var action = this.TParent.Chan.ParseURL(textbox1.Text);
+
+                    if (action.Board == this.Board && action.Action == Chans.URLParserResults.ActionType.Thread)
                     {
-                        int tid = Convert.ToInt32(data[3].Split('#')[0]);
-                        this.TParent.OpenThread(tid);
+                        this.TParent.OpenThread(action.ThreadID);
                     }
                     else 
                     {
-                        MessageBox.Show(String.Format("This URL is not for board /{0}/", this.Board));
+                        MessageBox.Show("This URL is not for this board");
                     }
                 }
-                else 
-                {
-                    int i = -1;
-                    try
-                    {
-                        i = Convert.ToInt32(textbox1.Text);
-                        this.TParent.OpenThread(i);
-                    }
-                    catch (Exception) { return; }
-                }
-            }   
+            }
         }
 
-        public void CleanUp() 
+        public void CleanUp()
         {
             this.timer.Stop();
             this.timer.Dispose();

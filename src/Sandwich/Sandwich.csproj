@@ -61,8 +61,14 @@
     <Reference Include="ChromeTabs">
       <HintPath>..\..\wpfchrometabs-master\ChromeTabs\bin\Release\ChromeTabs.dll</HintPath>
     </Reference>
+    <Reference Include="FirstFloor.ModernUI">
+      <HintPath>..\..\mui\FirstFloor.ModernUI.dll</HintPath>
+    </Reference>
     <Reference Include="MahApps.Metro">
       <HintPath>..\..\MahApps.Metro.0.11.0.0\lib\net40\MahApps.Metro.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Windows.Shell">
+      <HintPath>..\..\mui\Microsoft.Windows.Shell.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -98,46 +104,20 @@
     <Compile Include="ArchiveExtensions\Archive.cs" />
     <Compile Include="ArchiveExtensions\ArchiveDataProvider.cs" />
     <Compile Include="ArchiveExtensions\FoolFuukaParser.cs" />
+    <Compile Include="Chans\4chan\4chan.cs" />
+    <Compile Include="Chans\4chan\4chanArchiveDataProvider.cs" />
+    <Compile Include="Chans\4chan\4chanPostSenderResponse.cs" />
+    <Compile Include="Chans\IChan.cs" />
+    <Compile Include="Chans\IChanArchiveDataProvider.cs" />
+    <Compile Include="Chans\IPostSenderResponse.cs" />
+    <Compile Include="Chans\RandomBoard\RandomBoard.cs" />
+    <Compile Include="Chans\RequestPosterData.cs" />
+    <Compile Include="Chans\UploadFile.cs" />
+    <Compile Include="DataTypes\BoardInfo.cs" />
     <Compile Include="DataTypes\CommentToken.cs" />
     <Compile Include="ElementsColors.cs" />
+    <Compile Include="Helpers\ImageManipulation.cs" />
     <Compile Include="Helpers\ThreadHelper.cs" />
-    <Compile Include="WallbaseWallpaper.cs" />
-    <Compile Include="DataTypes\FileLoader.cs" />
-    <Compile Include="libs\stp\CallerThreadContext.cs" />
-    <Compile Include="libs\stp\CanceledWorkItemsGroup.cs" />
-    <Compile Include="libs\stp\EventWaitHandle.cs" />
-    <Compile Include="libs\stp\EventWaitHandleFactory.cs" />
-    <Compile Include="libs\stp\Exceptions.cs" />
-    <Compile Include="libs\stp\Interfaces.cs" />
-    <Compile Include="libs\stp\InternalInterfaces.cs" />
-    <Compile Include="libs\stp\PriorityQueue.cs" />
-    <Compile Include="libs\stp\SLExt.cs" />
-    <Compile Include="libs\stp\SmartThreadPool.cs" />
-    <Compile Include="libs\stp\SmartThreadPool.ThreadEntry.cs" />
-    <Compile Include="libs\stp\Stopwatch.cs" />
-    <Compile Include="libs\stp\STPEventWaitHandle.cs" />
-    <Compile Include="libs\stp\STPPerformanceCounter.cs" />
-    <Compile Include="libs\stp\STPStartInfo.cs" />
-    <Compile Include="libs\stp\SynchronizedDictionary.cs" />
-    <Compile Include="libs\stp\WIGStartInfo.cs" />
-    <Compile Include="libs\stp\WorkItem.cs" />
-    <Compile Include="libs\stp\WorkItem.WorkItemResult.cs" />
-    <Compile Include="libs\stp\WorkItemFactory.cs" />
-    <Compile Include="libs\stp\WorkItemInfo.cs" />
-    <Compile Include="libs\stp\WorkItemResultTWrapper.cs" />
-    <Compile Include="libs\stp\WorkItemsGroup.cs" />
-    <Compile Include="libs\stp\WorkItemsGroupBase.cs" />
-    <Compile Include="libs\stp\WorkItemsQueue.cs" />
-    <Compile Include="SessionManager\SessionFile.cs" />
-    <Compile Include="SessionManager\SessionManager.cs" />
-    <Compile Include="WPF\Clickable Controls\ClickableImage.cs" />
-    <Compile Include="WPF\Clickable Controls\ClickableLabel.cs" />
-    <Compile Include="WPF\DeletePostDialog.xaml.cs">
-      <DependentUpon>DeletePostDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="WPF\ExifRenderer.xaml.cs">
-      <DependentUpon>ExifRenderer.xaml</DependentUpon>
-    </Compile>
     <Compile Include="libs\hap\1_4_0\HtmlAgilityPack\crc32.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -225,6 +205,43 @@
     <Compile Include="libs\hap\1_4_0\HtmlAgilityPack\NameValuePairList.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="WallbaseWallpaper.cs" />
+    <Compile Include="DataTypes\FileLoader.cs" />
+    <Compile Include="libs\stp\CallerThreadContext.cs" />
+    <Compile Include="libs\stp\CanceledWorkItemsGroup.cs" />
+    <Compile Include="libs\stp\EventWaitHandle.cs" />
+    <Compile Include="libs\stp\EventWaitHandleFactory.cs" />
+    <Compile Include="libs\stp\Exceptions.cs" />
+    <Compile Include="libs\stp\Interfaces.cs" />
+    <Compile Include="libs\stp\InternalInterfaces.cs" />
+    <Compile Include="libs\stp\PriorityQueue.cs" />
+    <Compile Include="libs\stp\SLExt.cs" />
+    <Compile Include="libs\stp\SmartThreadPool.cs" />
+    <Compile Include="libs\stp\SmartThreadPool.ThreadEntry.cs" />
+    <Compile Include="libs\stp\Stopwatch.cs" />
+    <Compile Include="libs\stp\STPEventWaitHandle.cs" />
+    <Compile Include="libs\stp\STPPerformanceCounter.cs" />
+    <Compile Include="libs\stp\STPStartInfo.cs" />
+    <Compile Include="libs\stp\SynchronizedDictionary.cs" />
+    <Compile Include="libs\stp\WIGStartInfo.cs" />
+    <Compile Include="libs\stp\WorkItem.cs" />
+    <Compile Include="libs\stp\WorkItem.WorkItemResult.cs" />
+    <Compile Include="libs\stp\WorkItemFactory.cs" />
+    <Compile Include="libs\stp\WorkItemInfo.cs" />
+    <Compile Include="libs\stp\WorkItemResultTWrapper.cs" />
+    <Compile Include="libs\stp\WorkItemsGroup.cs" />
+    <Compile Include="libs\stp\WorkItemsGroupBase.cs" />
+    <Compile Include="libs\stp\WorkItemsQueue.cs" />
+    <Compile Include="SessionManager\SessionFile.cs" />
+    <Compile Include="SessionManager\SessionManager.cs" />
+    <Compile Include="WPF\Clickable Controls\ClickableImage.cs" />
+    <Compile Include="WPF\Clickable Controls\ClickableLabel.cs" />
+    <Compile Include="WPF\DeletePostDialog.xaml.cs">
+      <DependentUpon>DeletePostDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="WPF\ExifRenderer.xaml.cs">
+      <DependentUpon>ExifRenderer.xaml</DependentUpon>
+    </Compile>
     <Compile Include="libs\synhigh\src\DrawingControl.cs" />
     <Compile Include="libs\synhigh\src\HighlighterManager.cs" />
     <Compile Include="libs\synhigh\src\IHighlighter.cs" />
@@ -250,10 +267,8 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="FileDecoderEncoders\Cornelia.cs" />
-    <Compile Include="Helpers\BoardInfo.cs" />
     <Compile Include="BoardRss.cs" />
     <Compile Include="CaptchaProvide.cs" />
-    <Compile Include="CatalogDownloader.cs" />
     <Compile Include="libs\rss\Collections\ExceptionCollection.cs" />
     <Compile Include="libs\rss\Collections\RssCategoryCollection.cs" />
     <Compile Include="libs\rss\Collections\RssChannelCollection.cs" />
@@ -322,6 +337,9 @@
     <Compile Include="WPF\ImageViewer.xaml.cs">
       <DependentUpon>ImageViewer.xaml</DependentUpon>
     </Compile>
+    <Compile Include="WPF\MuiWindow.xaml.cs">
+      <DependentUpon>MuiWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="WPF\PictureBoxWPF.xaml.cs">
       <DependentUpon>PictureBoxWPF.xaml</DependentUpon>
     </Compile>
@@ -380,7 +398,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="RequestPoster.cs" />
     <Compile Include="Settings.cs" />
     <Resource Include="Resources\shls\syntax.xsd" />
   </ItemGroup>
@@ -443,6 +460,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="WPF\IndexNavigator.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WPF\MuiWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -523,6 +544,7 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

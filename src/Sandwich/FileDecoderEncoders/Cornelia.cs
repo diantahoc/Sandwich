@@ -4,55 +4,99 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace Sandwich
 {
     public class Cornelia : IFileEncoderDecoder
     {
-        //takes a byte[] array of the image file
-        public byte[] DecodeFile(byte[] data) 
+
+        private static string[][] archives = new string[][] 
         {
-            //temporary memory stream
-            MemoryStream mem = new MemoryStream();
+            new string[] { "Rar!", "rar" },
+            new string[] { "7z", "7z" },
+            new string[] {"PK", "zip"}
+        };
 
-            //temporary image data
-            MemoryStream imageData = new MemoryStream();
-            
-            imageData.Write(data, 0, data.Count());
+        /// <summary>
+        /// Return {file_extension:data}. file_extension is null when no file is detected
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public KeyValuePair<string, byte[]> DecodeFile(byte[] data)
+        {
+            byte[] decoded = null;
 
-            //initialize an image from the give data
-            Image b = Image.FromStream(imageData, true);
-
-            for (int x = 0; x < b.Width; x++) 
+            using (Image i = Image.FromStream(new MemoryStream(data)))
             {
-                for (int y = 0; y < b.Height; y++) 
-                {
+                decoded = SaveAs24Bit(i);
+            }
 
+            if (decoded != null)
+            {
+                for (int i = 0; i < archives.Length; i++)
+                {
+                    KeyValuePair<bool, int> a = detect_seqence(decoded, archives[i][0]);
+
+                    if (a.Key)
+                    {
+                        return new KeyValuePair<string, byte[]>(archives[i][1], decoded.Skip(a.Value).ToArray());
+                    }
                 }
             }
 
-            //save it to the temporary memory stream, in BMP format.
-            b.Save(mem, System.Drawing.Imaging.ImageFormat.Png);
-
-            b.Dispose();
-            imageData.Dispose();
-
-            byte[] result = mem.ToArray();
-
-            char[] res = System.Text.Encoding.UTF8.GetChars(result);
-
-            mem.Close(); mem.Dispose();
-
-            //this should be the decoded file.
-            return result;
+            return new KeyValuePair<string, byte[]>(null, null);
         }
 
-        public byte[] EncodeFile(byte[] data) 
+        public byte[] EncodeFile(byte[] data)
         {
             return null;
         }
 
         string IFileEncoderDecoder.Name { get { return "Cornelia"; } }
+
+        public static byte[] SaveAs24Bit(Image i)
+        {
+            using (MemoryStream bitmap_stream = new MemoryStream())
+            {
+                ImageCodecInfo bmpCodec = Helpers.ImageManipulation.GetEncoderInfo("image/bmp");
+
+                using (Bitmap blankImage = new Bitmap(i.Width, i.Height, PixelFormat.Format24bppRgb))
+                {
+                    using (Graphics g = Graphics.FromImage(blankImage))
+                    {
+                        g.DrawImageUnscaledAndClipped(i, new Rectangle(Point.Empty, i.Size));
+                    }
+                    blankImage.Save(bitmap_stream, bmpCodec, null);
+                }
+                return bitmap_stream.ToArray();
+            }
+        }
+
+        private static KeyValuePair<bool, int> detect_seqence(byte[] file, string sequence)
+        {
+            byte[] s = Encoding.UTF8.GetBytes(sequence);
+
+            for (int i = 0; i < file.Length; i ++)
+            {
+                bool ok = true;
+                for (int _i = 0; _i < s.Length; _i++)
+                {
+                    if (file[i + _i] != s[_i])
+                    {
+                        ok = false;
+                        break;
+                    }
+                }
+
+                if (ok)
+                {
+                    return new KeyValuePair<bool, int>(true, i);
+                }
+            }
+
+            return new KeyValuePair<bool, int>(false, 0);
+        }
 
     }
 }

@@ -24,7 +24,7 @@ namespace Sandwich
     {
 
         #region TabElement Interface
-        public string Board { get; private set; }
+        public BoardInfo Board { get; private set; }
 
         public int ID { get; private set; }
 
@@ -49,17 +49,18 @@ namespace Sandwich
         private bool is_404 = false;
         private bool dead_thread_loaded = false;
 
-        public ThreadViewerWPF(int tid, string board, BoardBrowserWPF parent)
+        public ThreadViewerWPF(int tid, BoardInfo board, BoardBrowserWPF parent)
         {
             InitializeComponent();
-
-            SessionManager.RegisterThread(board, tid);
 
             //set up interface
             this.Board = board;
             this.ID = tid;
             this.TParent = parent;
             this.Title = String.Format("Thread No. {0}", tid);
+
+
+            SessionManager.RegisterThread(this.TParent.Chan, board, tid);
 
 
             bg = new BackgroundWorker();
@@ -123,24 +124,24 @@ namespace Sandwich
 
         void bg_DoWork(object sender, DoWorkEventArgs e)
         {
-            if (is_404)
+            if (is_404 && TParent.Chan.HasArchives)
             {
-                //try
-                //{
-                tc = ArchiveExtensions.ArchiveDataProvider.GetThreadData(this.Board, this.ID);
-                dead_thread_loaded = true;
-                //}
-                //catch (Exception ex)
-                //{
-                //    MessageBox.Show(String.Format("Cannot load thread from archive: {0}", ex.Message));
-                //    e.Cancel = true;
-                //}
+                try
+                {
+                    tc = ArchiveExtensions.ArchiveDataProvider.GetThreadData(this.Board.Letter, this.ID);
+                    dead_thread_loaded = true;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(String.Format("Cannot load thread from archive: {0}", ex.Message));
+                    e.Cancel = true;
+                }
             }
             else
             {
                 try
                 {
-                    tc = Core.GetThreadData(this.Board, this.ID);
+                    tc = TParent.Chan.GetThread(this.Board.Letter, this.ID);
                 }
                 catch (Exception ex)
                 {
@@ -162,10 +163,17 @@ namespace Sandwich
         {
             if (!bg.IsBusy)
             {
-
                 if (is_404)
                 {
-                    this.statusbar.Content = "Loading from archive...";
+                    if (TParent.Chan.HasArchives)
+                    {
+                        this.statusbar.Content = "Loading from archive...";
+                    }
+                    else
+                    {
+                        this.statusbar.Content = "No archive found. Cannot update thread";
+                        return;
+                    }
                 }
                 else
                 {
@@ -200,9 +208,12 @@ namespace Sandwich
             updatebtn.IsEnabled = false;
             timer.Stop();
 
-            if (ArchiveDataProvider.BoardHasArchive(this.Board))
+            if (this.TParent.Chan.ArchiveDataProvider != null)
             {
-                loadDead.Visibility = System.Windows.Visibility.Visible;
+                if (this.TParent.Chan.ArchiveDataProvider.BoardHasArchive(this.Board.Letter))
+                {
+                    loadDead.Visibility = System.Windows.Visibility.Visible;
+                }
             }
         }
 
@@ -229,45 +240,37 @@ namespace Sandwich
             }
             else
             {
-                PostDisplayerWPF pdf = new PostDisplayerWPF();
-
-                pdf.PostTitleClicked = this.PostDisplayer_PostTitleClicked;
-                pdf.ImageClicked = this.PostDisplayer_ImageClicked;
-                pdf.QuoteClicked = this.PostDisplayer_QuoteClicked;
-                pdf.ReportClicked = this.PostDisplayer_ReportMenuClicked;
-                pdf.DeleteClicked = this.PostDisplayer_DeleteMenuClicked;
-
-                pdf.Init(gp);
-
+                PostDisplayerWPF pdf = new PostDisplayerWPF(this);
+                pdf.LoadData(gp);
                 dic.Add(gp.PostNumber, this.stackpanel.Children.Add(pdf));
             }
         }
 
-        #region PostDisplayer Events
+        #region PostDisplayer Accessible Methods
 
-        private void PostDisplayer_ImageClicked(GenericPost gp, bool autofocus)
+        public void PostDisplayer_ImageClicked(GenericPost gp, bool autofocus)
         {
             this.TParent.OpenImage(gp, autofocus);
         }
 
-        private void PostDisplayer_QuoteClicked(int quote)
+        public void PostDisplayer_QuoteClicked(int quote)
         {
             this.FocusPost(quote);
         }
 
-        private void PostDisplayer_PostTitleClicked(GenericPost gp)
+        public void PostDisplayer_PostTitleClicked(GenericPost gp)
         {
             this.TParent.FocusQR(this.ID);
             QuickReplyTab t = this.TParent.GetOwnQr(this.ID);
             t.shb.Text = t.shb.Text + ">>" + gp.PostNumber.ToString() + Environment.NewLine;
         }
 
-        private void PostDisplayer_ReportMenuClicked(int id)
+        public void PostDisplayer_Report(int id)
         {
-
+            return;
         }
 
-        private void PostDisplayer_DeleteMenuClicked(int id)
+        public void PostDisplayer_DeleteMenuClicked(int id)
         {
             this.TParent.ShowDeletePostDialog(this.tc.Instance.PostNumber, id);
         }
@@ -332,7 +335,7 @@ namespace Sandwich
 
             if (tc != null) { this.tc.Dispose(); }
 
-            SessionManager.UnRegisterThread(this.Board, this.ID);
+            SessionManager.UnRegisterThread(this.TParent.Chan, this.Board, this.ID);
         }
 
         #region Buttons Handlers

@@ -12,7 +12,7 @@ namespace Sandwich
 
         int ID { get; }
 
-        string Board { get; }
+        BoardInfo Board { get; }
 
         BoardBrowserWPF TParent { get; }
 

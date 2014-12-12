@@ -7,10 +7,10 @@ namespace Sandwich
 {
     interface IFileEncoderDecoder
     {
-         byte[] DecodeFile(byte[] data);
+        KeyValuePair<string, byte[]> DecodeFile(byte[] data);
 
-         byte[] EncodeFile(byte[] data);
+        byte[] EncodeFile(byte[] data);
 
-         string Name { get; }
+        string Name { get; }
     }
 }

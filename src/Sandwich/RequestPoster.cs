@@ -7,20 +7,22 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Globalization;
 using System.ComponentModel;
+using Sandwich.Chans;
 
 namespace Sandwich
 {
     class RequestPoster
     {
+        
+        BoardInfo board;
 
-        string _board;
         RequestPosterData _data;
 
         BackgroundWorker bg;
 
-        public RequestPoster(string board)
+        public RequestPoster(BoardInfo board)
         {
-            _board = board;
+            this.board = board;
             bg = new BackgroundWorker();
             bg.DoWork += new DoWorkEventHandler(bg_DoWork);
             bg.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bg_RunWorkerCompleted);
@@ -97,10 +99,7 @@ namespace Sandwich
                     );
                 }
 
-                int maxium_file_size = BoardInfo.GetBoardMaximumFileSize(_board);
-                values.Add("MAX_FILE_SIZE", maxium_file_size.ToString());
-
-                //values.Add("MAX_FILE_SIZE", "3145728");
+                values.Add("MAX_FILE_SIZE", this.board.MaximumFileSize.ToString());
 
                 values.Add("mode", "regist");
 
@@ -131,7 +130,7 @@ namespace Sandwich
                 HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(url_template.Replace("%", _board));
                 request.Method = "POST";
                 request.UserAgent = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)";
-                request.Referer = "http://boards.4chan.org/" + _board;
+                request.Referer = "http://boards.4chan.org/" + board.Letter;
 
 
                 // request.Headers.Add(HttpRequestHeader.UserAgent, "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)"); // "Sandwich (Like Mozilla 5.0 | Gecko | Apple Webkit)"; //Custom UA. I suggest to use a real user-agent
@@ -409,17 +408,7 @@ namespace Sandwich
 
     }
 
-    public class UploadFile
-    {
-        public UploadFile()
-        {
-            ContentType = "application/octet-stream";
-        }
-        public string Name { get; set; }
-        public string Filename { get; set; }
-        public string ContentType { get; set; }
-        public MemoryStream Stream { get; set; }
-    }
+
 
     public class RequestPosterData
     {
@@ -438,7 +427,6 @@ namespace Sandwich
         public string file_path = "";
 
         public string file_name = "";
-
 
     }
 

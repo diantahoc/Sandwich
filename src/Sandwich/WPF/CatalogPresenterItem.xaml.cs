@@ -20,19 +20,19 @@ namespace Sandwich
     /// </summary>
     public partial class CatalogPresenterItem : UserControl, IDisposable
     {
-        CatalogPresenter my_parent;
+        public CatalogPresenter Parent { get; private set; }
+        public CatalogItem ItemData { get; private set; }
 
-        static string url = "http://boards.4chan.org/{0}/res/{1}#p{1}";
 
         public CatalogPresenterItem(CatalogItem ci, CatalogPresenter parent)
         {
             InitializeComponent();
 
-            my_parent = parent;
+            this.Parent = parent;
 
-            this.CatI = ci;
+            this.ItemData = ci;
 
-            this.image1.Click += (s, e) => { if (PictureBoxClicked != null) { PictureBoxClicked(this.CatI); } };
+            this.image1.Click += (s, e) => { this.Parent.Handle_CatalogItemClicked(this.ItemData); };
 
             if (ci.file != null)
             {
@@ -44,12 +44,15 @@ namespace Sandwich
                 MenuItem a = new MenuItem();
 
                 a.Header = "Open Image";
-                a.Click += (s, e) => { my_parent.TParent.OpenImage(this.CatI, false); };
+                a.Click += (s, e) =>{ this.Parent.TParent.OpenImage(this.ItemData, false); };
 
                 me.Items.Add(a);
 
-                MenuItem b = new MenuItem() { Header = "Copy 4chan URL" };
-                b.Click += (s, e) => { Clipboard.SetText(String.Format(url, this.CatI.board, this.CatI.PostNumber)); };
+                MenuItem b = new MenuItem() { Header = "Copy URL" };
+                b.Click += (s, e) =>
+                {
+                    Clipboard.SetText(this.Parent.TParent.Chan.GetThreadURL(this.ItemData.board, this.ItemData.PostNumber));
+                };
 
                 me.Items.Add(b);
 
@@ -57,15 +60,15 @@ namespace Sandwich
             }
             else
             {
-                this.status.Content = "No image";
-                this.gr.Children.Remove(this.image1);
+                this.status.Content = Common.NoThumbImage;
+                //this.gr.Children.Remove(this.image1);
             }
 
-            this.label1.Content = String.Format("R : {0} / I: {1}", this.CatI.text_replies, this.CatI.image_replies);
+            this.label1.Content = String.Format("R : {0} / I: {1}", this.ItemData.text_replies, this.ItemData.image_replies);
 
             if (!string.IsNullOrEmpty(ci.comment))
             {
-                this.ToolTip = Common.DecodeHTML(this.CatI.comment);
+                this.ToolTip = Common.DecodeHTML(this.ItemData.comment);
             }
 
         }
@@ -73,23 +76,19 @@ namespace Sandwich
         private void file_FileLoaded(PostFile sender)
         {
             this.gr.Children.Remove(this.status);
-            this.image1.Source = this.CatI.file.Image; ;
+            this.image1.Source = this.ItemData.file.Image; ;
             this.image1.Visibility = System.Windows.Visibility.Visible;
         }
-
-        public event Common.ThreadLoadRequest PictureBoxClicked;
-
-        public CatalogItem CatI { get; private set; }
 
         public DateTime LastReplyTime
         {
             get
             {
-                if (this.CatI.trails != null)
+                if (this.ItemData.trails != null)
                 {
-                    return this.CatI.trails.Last().time;
+                    return this.ItemData.trails.Last().time;
                 }
-                else { return this.CatI.time; }
+                else { return this.ItemData.time; }
             }
         }
 
@@ -113,10 +112,10 @@ namespace Sandwich
 
         public void Dispose()
         {
-            if (this.CatI.file != null)
+            if (this.ItemData.file != null)
             {
-                this.CatI.file.FileLoaded -= this.file_FileLoaded;
-                this.CatI.file.Dispose();
+                this.ItemData.file.FileLoaded -= this.file_FileLoaded;
+                this.ItemData.file.Dispose();
             }
         }
     }

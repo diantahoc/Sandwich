@@ -11,6 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Threading.Tasks;
 
 namespace Sandwich.WPF
 {
@@ -19,14 +20,14 @@ namespace Sandwich.WPF
     /// </summary>
     public partial class QuickReplyTab : UserControl
     {
-
         public int ID { get; private set; }
-        public string Board { get; private set; }
+
+        public Chans.IChan Chan { get; private set; }
+        public BoardInfo Board { get; private set; }
+
         public Common.PostingMode Mode { get; private set; }
 
         private CaptchaProvider cp;
-
-        private RequestPoster rp;
 
         private string current_captcha_challenge = "";
 
@@ -34,12 +35,13 @@ namespace Sandwich.WPF
 
         bool is_sending = false;
 
-        public QuickReplyTab(Common.PostingMode mode, string board, int threadid)
+        public QuickReplyTab(Common.PostingMode mode, BoardInfo board, int threadid)
         {
             InitializeComponent();
             this.ID = threadid;
             this.Mode = mode;
             this.Board = board;
+            this.Chan = board.Chan;
 
             if (mode == Common.PostingMode.NewThread)
             {
@@ -55,17 +57,30 @@ namespace Sandwich.WPF
             catch (Exception) { }
 
 
-            cp = new CaptchaProvider();
-            cp.CaptchaLoaded += new CaptchaProvider.CaptchaLoadedEvent(cp_CaptchaLoaded);
-            cp.CaptchaError += new CaptchaProvider.CaptchaLoadErrorEvent(cp_CaptchaError);
-            refresh_captcha();
+            if (this.Chan.RequireCaptcha)
+            {
+                cp = new CaptchaProvider();
+                cp.CaptchaLoaded += new CaptchaProvider.CaptchaLoadedEvent(cp_CaptchaLoaded);
+                cp.CaptchaError += new CaptchaProvider.CaptchaLoadErrorEvent(cp_CaptchaError);
+                refresh_captcha();
+            }
+            else
+            {
+                HideCaptchaUI();
+            }
 
+        }
 
-            rp = new RequestPoster(board);
+        private void HideCaptchaUI()
+        {
+            this.captcha_row.Visibility = System.Windows.Visibility.Collapsed;
+            this.captchaResponse.Visibility = System.Windows.Visibility.Collapsed;
+        }
 
-            rp.SendCompleted += new RequestPoster.DataSendCompleteEvent(rp_SendCompleted);
-            rp.SendingProgressChanged += new Common.ProgressChanged(rp_SendingProgressChanged);
-            rp.SendError += new RequestPoster.SendErrorEvent(rp_SendError);
+        private void ShowCaptchaUI()
+        {
+            this.captcha_row.Visibility = System.Windows.Visibility.Visible;
+            this.captchaResponse.Visibility = System.Windows.Visibility.Visible;
         }
 
         #region Captcha UI
@@ -112,7 +127,7 @@ namespace Sandwich.WPF
         private string get_board_supported_files()
         {
             StringBuilder s = new StringBuilder();
-            foreach (string file_ext in BoardInfo.GetBoardFiles(this.Board))
+            foreach (string file_ext in this.Board.Files)
             {
                 s.AppendFormat("*.{0};", file_ext);
             }
@@ -192,107 +207,126 @@ namespace Sandwich.WPF
 
         #endregion
 
-        #region Post Sending
-
-        private void actionText_Click(object sender, RoutedEventArgs e)
+        private void SendRequest()
         {
             if (is_sending)
             {
-                MessageBox.Show("A request is being sended");
-                return;
+                Core.ShowMessage("A request is being sended", Core.MessageType.Info);
             }
             else
             {
-                if (!verify_errors()) { return; }
-                switch_controls(false);
 
-                rp.SendRequest(new RequestPosterData()
+                if (verify_errors())
                 {
-                    comment = this.shb.Text,
-                    email = this.emailBox.Text,
-                    file_name = this.filename.Text,
-                    file_path = selected_file_path,
-                    is_pass = false,
-                    is_reply = (this.Mode == Common.PostingMode.Reply),
-                    name = this.nameBox.Text,
-                    password = "123456",
-                    Captcha = new SolvedCaptcha(current_captcha_challenge, this.captchaResponse.Text.Trim().Split(' ').Length == 1 ? string.Format("{0} {0}", this.captchaResponse.Text.Trim().Split(' ').First()) : this.captchaResponse.Text),
-                    subject = this.subBox.Text,
-                    tid = this.ID
-                });
+                    var data = new Chans.RequestPosterData()
+                    {
+                        Board = this.Board,
+                        CaptchaRequired = this.Chan.RequireCaptcha,
+                        Captcha = GetCaptchaResponse(),
+                        Comment = this.shb.Text,
+                        Email = this.emailBox.Text,
+                        IsReply = (this.Mode == Common.PostingMode.Reply),
+                        Name = this.nameBox.Text,
+                        Subject = this.subBox.Text,
+                        PostPassword = "sw123456",
+                        ThreadID = this.ID
+                    };
 
-                this.progress_modal.Visibility = System.Windows.Visibility.Visible;
-                is_sending = true;
+                    //send message
+                    Task.Factory.StartNew((Action)delegate
+                    {
+                        try
+                        {
+
+                            //Disable the UI
+                            this.Dispatcher.Invoke((Action)delegate
+                            {
+                                switch_controls(false);
+                            });
+
+                            //send data synchronously
+                            is_sending = true;
+
+                            var response = this.Chan.SendPost(data);
+
+                            is_sending = false;
+
+                            //Enable the UI
+                            this.Dispatcher.Invoke((Action)delegate
+                            {
+                                switch_controls(true);
+                            });
+
+                            if (response.ResponseStatus == Core.PostSendingStatus.Success)
+                            {
+                                this.Dispatcher.Invoke((Action)delegate
+                                {
+                                    Button_Click(null, null); // Reset fields, this stimulate thte reset button press.
+
+                                    if (OpenThread != null && this.Mode == Common.PostingMode.NewThread)
+                                    {
+                                        OpenThread(response.AdditionalData.Key);
+                                    }
+
+                                    Core.ShowMessage("Post successful!", Core.MessageType.Success);
+                                });
+
+
+                            }
+                            else
+                            {
+                                string debug_log = System.IO.Path.Combine(Core.log_dir, string.Format("RequestPoster-ResponseHTML-{0}-{1}-{2).log",
+                                    this.Chan.Name, this.ID, DateTime.Now.Ticks));
+
+                                System.IO.File.WriteAllText(debug_log, response.ResponseHTML);
+
+                                this.Dispatcher.Invoke((Action)delegate
+                                {
+                                    Core.ShowMessage(string.Format("Cannot send request: '{0}'", response.ResponseStatus), Core.MessageType.Error);
+                                });
+                            }
+
+
+                        }
+                        catch (Exception ex)
+                        {
+                            this.Dispatcher.Invoke((Action)delegate
+                            {
+                                Core.ShowMessage(string.Format("Cannot send request: '{0}'", ex.Message), Core.MessageType.Error);
+                                switch_controls(true);
+                            });
+                        }
+
+
+                    });//Sender thread
+                }
             }
         }
 
-        void rp_SendCompleted(RequestPosterResponse response)
+        private SolvedCaptcha GetCaptchaResponse()
         {
-            this.Dispatcher.Invoke((Action)delegate
-            {
-                is_sending = false;
-                switch_controls(true);
-                this.progress_modal.Visibility = System.Windows.Visibility.Collapsed;
-
-                if (response.Status == RequestPosterResponse.ResponseStatus.Success)
-                {
-                    Button_Click(null, null);//reset elements
-
-                    if (OpenThread != null & this.Mode == Common.PostingMode.NewThread)
-                    {
-                        OpenThread(Convert.ToInt32(response.ResponseBody.Split(':')[1]));
-                    }
-
-                }
-                else
-                {
-                    string debug_log = System.IO.Path.Combine(Core.log_dir, this.ID.ToString());
-
-                    System.IO.File.WriteAllText(debug_log, response.ResponseBody);
-                }
-
-                MessageBox.Show(response.Status.ToString());
-
-                is_sending = false;
-            });
+            return new SolvedCaptcha(current_captcha_challenge, this.captchaResponse.Text.Trim().Split(' ').Length == 1 ? string.Format("{0} {0}", this.captchaResponse.Text.Trim().Split(' ').First()) : this.captchaResponse.Text);
         }
 
-        void rp_SendError(Exception ex)
-        {
-            this.Dispatcher.Invoke((Action)delegate
-            {
-                this.progress_modal.Visibility = System.Windows.Visibility.Collapsed;
-                MessageBox.Show(string.Format("Cannot send request: '{0}'", ex.Message), "Error");
-            });
-        }
-
-        void rp_SendingProgressChanged(double p)
-        {
-            this.Dispatcher.Invoke((Action)delegate
-            {
-                this.progress_bar.IsIndeterminate = (p <= 0);
-                this.progress_bar.Value = p * 100;
-            });
-        }
-
+     
 
         private bool verify_errors()
         {
-            if (string.IsNullOrEmpty(this.captchaResponse.Text) | string.IsNullOrWhiteSpace(this.captchaResponse.Text))
+            if (this.Chan.RequireCaptcha && string.IsNullOrWhiteSpace(this.captchaResponse.Text))
             {
-                MessageBox.Show("You must type the captcha.");
+                Core.ShowMessage("You must type the captcha.", Core.MessageType.Error);
                 return false;
             }
 
-            if (!string.IsNullOrEmpty(this.selected_file_path) & string.IsNullOrEmpty(this.filename.Text))
+            if (!string.IsNullOrEmpty(this.selected_file_path) && string.IsNullOrEmpty(this.filename.Text))
             {
-                MessageBox.Show("Please type a file name.");
+                Core.ShowMessage("Please type a file name.", Core.MessageType.Error);
                 return false;
             }
 
-            if (string.IsNullOrEmpty(this.selected_file_path) & string.IsNullOrEmpty(this.shb.Text))
+            if (string.IsNullOrEmpty(this.selected_file_path) && string.IsNullOrEmpty(this.shb.Text))
             {
-                MessageBox.Show("You cannot blank post.");
+                Core.ShowMessage("You cannot blank post.", Core.MessageType.Warning);
                 return false;
             }
 
@@ -317,8 +351,6 @@ namespace Sandwich.WPF
         public delegate void OpenThreadEvent(int id);
         public event OpenThreadEvent OpenThread;
 
-        #endregion
-
         private void nameBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (nameBox.Text.Contains("#"))
@@ -341,6 +373,11 @@ namespace Sandwich.WPF
             {
                 emailBox.Background = Brushes.White;
             }
+        }
+
+        private void actionText_Click(object sender, RoutedEventArgs e)
+        {
+            SendRequest();
         }
     }
 }

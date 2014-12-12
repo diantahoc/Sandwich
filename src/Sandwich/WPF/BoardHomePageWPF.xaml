@@ -28,7 +28,7 @@
             <Button Name="refreshbutton" Click="refreshbutton_Click">Refresh</Button>
             <Separator Width="2" />
             <TextBox Name="textbox1" MinWidth="80"></TextBox>
-            <Button Click="Button_Click_3">Open thread (or 4chan url)</Button>
+            <Button Click="Button_Click_3">Open thread (or thread url)</Button>
         </StackPanel>
         
         <GroupBox Name="grbox1" Header="Threads count" Grid.Column="0" Grid.Row="2">

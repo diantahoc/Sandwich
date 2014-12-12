@@ -59,7 +59,7 @@ namespace Sandwich
                     doc.LoadHtml(html);
 
                     string re_challenge = doc.GetElementbyId("recaptcha_challenge_field").Attributes["value"].Value;
-                    HtmlNode imagenode = doc.DocumentNode.SelectNodes("//img")[0];
+                    HtmlNode imagenode = doc.DocumentNode.SelectNodes("//img")[0] as HtmlNode;
                     string image_src = imagenode.Attributes["src"].Value;
 
                     if (!String.IsNullOrEmpty(image_src))

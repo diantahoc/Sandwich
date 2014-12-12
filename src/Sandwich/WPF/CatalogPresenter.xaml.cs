@@ -22,7 +22,7 @@ namespace Sandwich
     /// </summary>
     public partial class CatalogPresenter : UserControl, TabElement, IDisposable
     {
-        public string Board { get; private set; }
+        public BoardInfo Board { get; private set; }
 
         public int ID { get { return 0; } }
         public Common.ElementType Type { get { return Common.ElementType.Catalog; } }
@@ -31,7 +31,7 @@ namespace Sandwich
         public string Title { get { return "Catalog"; } }
 
 
-        private CatalogItem[][] data;
+        private CatalogItem[] data;
         private System.ComponentModel.BackgroundWorker bg;
         private System.Windows.Forms.Timer timer;
 
@@ -42,14 +42,14 @@ namespace Sandwich
         private int _sort_type = 0;
         private int _sort_index = 0;
 
-        public CatalogPresenter(string board, BoardBrowserWPF parent)
+        public CatalogPresenter(BoardInfo board, BoardBrowserWPF parent)
         {
             InitializeComponent();
 
-            SessionManager.RegisterCatalog(board);
-
             this.Board = board;
             this.TParent = parent;
+
+            SessionManager.RegisterCatalog(this.TParent.Chan, this.Board);
 
             this.bg = new System.ComponentModel.BackgroundWorker();
             this.bg.DoWork += new System.ComponentModel.DoWorkEventHandler(bg_DoWork);
@@ -94,7 +94,7 @@ namespace Sandwich
         {
             try
             {
-                data = Core.GetCatalog(this.Board);
+                data = this.TParent.Chan.GetCatalog(this.Board.Letter);
             }
             catch (Exception ex)
             {
@@ -113,21 +113,15 @@ namespace Sandwich
 
                 for (int i = 0; i < data.Length; i++)
                 {
-                    foreach (CatalogItem ci in data[i])
-                    {
-                        CatalogPresenterItem cpi = new CatalogPresenterItem(ci, this);
-
-                        cpi.PictureBoxClicked += cpi_PictureBoxClicked;
-
-                        this.AddItem(cpi);
-                    }
+                    CatalogPresenterItem cpi = new CatalogPresenterItem(data[i], this);
+                    this.AddItem(cpi);
                 }
             }
         }
 
-        void cpi_PictureBoxClicked(CatalogItem Ci)
+        public void Handle_CatalogItemClicked(CatalogItem item)
         {
-            this.TParent.OpenThread(Ci.PostNumber);
+            this.TParent.OpenThread(item.PostNumber);
         }
 
         private void refresh()
@@ -155,7 +149,7 @@ namespace Sandwich
 
             RemoveAll();
 
-            SessionManager.UnRegisterCatalog(this.Board);
+            SessionManager.UnRegisterCatalog(this.TParent.Chan, this.Board);
         }
 
         public void Dispose() { CleanUp(); }
@@ -167,7 +161,6 @@ namespace Sandwich
                 if (this.cataloglist.Children[i].GetType() == cpi_type)
                 {
                     CatalogPresenterItem cpi = (CatalogPresenterItem)(this.cataloglist.Children[i]);
-                    cpi.PictureBoxClicked -= cpi_PictureBoxClicked;
                     cpi.Dispose();
                     this.cataloglist.Children.RemoveAt(i);
                 }
@@ -179,9 +172,7 @@ namespace Sandwich
         {
             if (!(string.IsNullOrEmpty(filter) || string.IsNullOrWhiteSpace(filter)))
             {
-
                 Regex r = null;
-
                 try
                 {
                     r = new Regex(filter, RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled);
@@ -197,7 +188,7 @@ namespace Sandwich
                     {
                         CatalogPresenterItem c = (CatalogPresenterItem)(ci);
 
-                        if (r.IsMatch(c.CatI.comment) | r.IsMatch(c.CatI.subject))
+                        if (r.IsMatch(c.ItemData.comment) || r.IsMatch(c.ItemData.subject))
                         {
                             c.Visibility = System.Windows.Visibility.Visible;
                         }
@@ -238,7 +229,7 @@ namespace Sandwich
             sort();
         }
 
-        private void sort() 
+        private void sort()
         {
             if (this.cataloglist != null)
             {
@@ -253,16 +244,16 @@ namespace Sandwich
                             sorted = data.OrderBy(x => x.LastReplyTime);
                             break;
                         case 1:
-                            sorted = data.OrderBy(x => x.CatI.TotalReplies);
+                            sorted = data.OrderBy(x => x.ItemData.TotalReplies);
                             break;
                         case 2:
-                            sorted = data.OrderBy(x => x.CatI.time);
+                            sorted = data.OrderBy(x => x.ItemData.time);
                             break;
                         case 3:
                             sorted = data.OrderBy(x => x.LastReplyTime);
                             break;
                         case 4:
-                            sorted = data.OrderBy(x => x.CatI.PostNumber);
+                            sorted = data.OrderBy(x => x.ItemData.PostNumber);
                             break;
                         default:
                             return;

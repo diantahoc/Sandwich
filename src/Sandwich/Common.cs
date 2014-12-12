@@ -13,8 +13,6 @@ namespace Sandwich
         public static BitmapImage OptionImage;
         public static BitmapImage NoThumbImage;
 
-        //public static System.Text.RegularExpressions.Regex quoteMatcher;
-
         static Common()
         {
             ErrorImage = new BitmapImage(new Uri("pack://application:,,,/Sandwich;component/Resources/error.png", UriKind.Absolute));
@@ -25,13 +23,11 @@ namespace Sandwich
 
             NoThumbImage = new BitmapImage(new Uri("pack://application:,,,/Sandwich;component/Resources/nothumb.png", UriKind.Absolute));
             NoThumbImage.Freeze();
-
-           // quoteMatcher = new System.Text.RegularExpressions.Regex(">>[0-9]+", System.Text.RegularExpressions.RegexOptions.Compiled |  System.Text.RegularExpressions.RegexOptions.Singleline);
         }
 
         public static string DecodeHTML(string text)
         {
-            if (!(String.IsNullOrEmpty(text) || String.IsNullOrWhiteSpace(text)))
+            if (!string.IsNullOrWhiteSpace(text))
             {
                 HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument(); doc.LoadHtml(text);
                 return System.Web.HttpUtility.HtmlDecode(ThreadHelper.GetNodeText(doc.DocumentNode));
@@ -49,7 +45,9 @@ namespace Sandwich
 
         //posts events
         public delegate void ImageClickEvent(GenericPost gp, bool autofocus);
+
         public delegate void PostTitleClickEvent(GenericPost gp);
+
         public delegate void QuoteClickEvent(int quote);
 
         //catalog events
@@ -75,8 +73,15 @@ namespace Sandwich
         {
             using (MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider())
             {
-                return ByteArrayToString(md5.ComputeHash(Encoding.ASCII.GetBytes(s)));
+                return ByteArrayToString(md5.ComputeHash(Encoding.UTF8.GetBytes(s)));
             }
+        }
+
+        private static System.Text.RegularExpressions.Regex is_num = new System.Text.RegularExpressions.Regex(@"\d+", System.Text.RegularExpressions.RegexOptions.Compiled);
+
+        public static bool IsNumeric(string s) 
+        {
+            return is_num.IsMatch(s);
         }
 
         public static string ByteArrayToString(byte[] arrInput)

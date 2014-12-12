@@ -21,7 +21,7 @@ namespace Sandwich.WPF
     public partial class ImageViewer : UserControl, TabElement
     {
         public Common.ElementType Type { get { return Common.ElementType.ImageView; } }
-        public string Board { get; private set; }
+        public BoardInfo Board { get; private set; }
         public int ID { get { return this._gp.PostNumber; } }
         public BoardBrowserWPF TParent { get; private set; }
         public string Title { get; private set; }
@@ -43,7 +43,7 @@ namespace Sandwich.WPF
             SessionManager.RegisterFile(gp.file);
 
             this.TParent = parent;
-            this.Board = gp.board;
+            this.Board = TParent.Board;
             this.Title = string.Format("File: {0}.{1}", gp.file.filename, gp.file.ext);
             formatted_size = Common.format_size_string(gp.file.size);
             this.zap_c.ScrollOwner = this.zap_sc;

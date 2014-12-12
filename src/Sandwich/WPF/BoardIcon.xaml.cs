@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Media.Effects;
+using Sandwich.DataTypes;
 
 namespace Sandwich.WPF
 {
@@ -20,16 +21,15 @@ namespace Sandwich.WPF
     /// </summary>
     public partial class BoardIcon : UserControl
     {
-
         private string _l;
-   
-        public BoardIcon(string board_letter)
+
+        public BoardIcon(BoardInfo board)
         {
             InitializeComponent();
-            _l = board_letter;
+            _l = board.Letter;
 
-            this.Desc.Content = BoardInfo.GetBoardTitle(board_letter);
-            this.Icon.Source = BoardInfo.GetBoardIcon(board_letter);
+            this.Desc.Content = board.Description;
+            this.Icon.Source = board.Icon;
             this.Icon.Stretch = Stretch.Fill;
         }
 

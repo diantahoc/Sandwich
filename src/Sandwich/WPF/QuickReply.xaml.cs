@@ -11,20 +11,33 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Sandwich.Chans;
 
 namespace Sandwich.WPF
 {
     /// <summary>
     /// Interaction logic for QuickReply.xaml
+    /// This is the manager of children actual quick reply boxes.
     /// </summary>
     public partial class QuickReply : UserControl, IDisposable
     {
-        public string Board { get; private set; }
 
-        public QuickReply(string board)
+        public IChan Chan { get; private set; }
+
+        public BoardInfo Board { get; private set; }
+
+        public QuickReply(IChan chan, BoardInfo board)
         {
             InitializeComponent();
+
+            this.Chan = chan;
+
             this.Board = board;
+
+            if (this.Board.Chan != this.Chan) 
+            {
+                throw new ArgumentException("Board chan mismatch");
+            }
         }
 
         /// <summary>
@@ -33,7 +46,7 @@ namespace Sandwich.WPF
         public QuickReply()
         {
             InitializeComponent();
-            this.Board = null;
+            this.Chan = null;
         }
 
         public QuickReplyTab AddThreadReply(int tid)

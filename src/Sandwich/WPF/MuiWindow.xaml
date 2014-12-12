@@ -1,0 +1,21 @@
+﻿<mui:ModernWindow x:Class="Sandwich.WPF.MuiWindow"
+        xmlns:mui="http://firstfloorsoftware.com/ModernUI"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="373" d:DesignWidth="636"
+    ResizeMode="CanResize"
+    WindowStartupLocation="CenterScreen"
+    Icon="/Sandwich;component/Resources/icons/dead.png" SizeToContent="WidthAndHeight"
+                  ContentSource="/WPF/MainWindow.xaml"
+                  Title="Sandwich" IsTitleVisible="True">
+
+    <mui:ModernWindow.TitleLinks>
+        <mui:Link DisplayName="Settings" Source="/WPF/SettingsManager.xaml" />
+        <mui:Link DisplayName="About" Source="/WPF/SettingsManager.xaml" />
+    </mui:ModernWindow.TitleLinks>
+
+
+</mui:ModernWindow>

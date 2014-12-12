@@ -16,23 +16,23 @@ namespace Sandwich
             File.Delete(Path.Combine(session_dir, "clean"));
         }
 
-        public static void RegisterThread(string board, int id)
+        public static void RegisterThread(Chans.IChan chan, BoardInfo board, int id)
         {
-            string path = Path.Combine(session_dir, string.Format("thread-{0}-{1}", board, id));
-
+            string path = Path.Combine(session_dir, string.Format("thread-{0}-{1}-{2}", chan.Name, board.Letter, id));
             File.WriteAllText(path, "");
         }
 
-        public static void RegisterCatalog(string board)
+        public static void RegisterCatalog(Chans.IChan chan, BoardInfo board)
         {
-            string path = Path.Combine(session_dir, string.Format("catalog-{0}", board));
+            string path = Path.Combine(session_dir, string.Format("catalog-{0}-{1}", chan.Name, board.Letter));
 
             File.WriteAllText(path, "");
         }
 
         public static void RegisterFile(PostFile pf)
         {
-           // string md5 = Common.ByteArrayToString(Convert.FromBase64String(pf.hash));
+            // string md5 = Common.ByteArrayToString(Convert.FromBase64String(pf.hash));
+            if (string.IsNullOrWhiteSpace(pf.hash)) { return; }
             string md5 = Common.MD5(pf.hash);
             string content = Newtonsoft.Json.JsonConvert.SerializeObject(
                 new SessionFile()
@@ -55,18 +55,19 @@ namespace Sandwich
             File.WriteAllText(path, content);
         }
 
-        public static void UnRegisterThread(string board, int id)
+        public static void UnRegisterThread(Chans.IChan chan, BoardInfo board, int id)
         {
-            File.Delete(Path.Combine(session_dir, string.Format("thread-{0}-{1}", board, id)));
+            File.Delete(Path.Combine(session_dir, string.Format("thread-{0}-{1}-{2}", chan.Name, board.Letter, id)));
         }
 
-        public static void UnRegisterCatalog(string board)
+        public static void UnRegisterCatalog(Chans.IChan chan, BoardInfo board)
         {
-            File.Delete(Path.Combine(session_dir, string.Format("catalog-{0}", board)));
+            File.Delete(Path.Combine(session_dir, string.Format("catalog-{0}-{1}", chan.Name, board.Letter)));
         }
 
         public static void UnRegisterFile(PostFile pf)
         {
+            if (string.IsNullOrWhiteSpace(pf.hash)) { return; }
             string md5 = Common.MD5(pf.hash);
             File.Delete(Path.Combine(session_dir, string.Format("file-{0}-{1}", pf.board, md5)));
         }

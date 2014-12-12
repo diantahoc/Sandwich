@@ -155,7 +155,7 @@ namespace Sandwich.ArchiveExtensions
         {
             Thread t = new Thread();
 
-            t.PostNumber = Convert.ToInt32(node.GetId());
+            t.PostNumber = Convert.ToInt32(node.Id);
 
             t.type = GenericPost.PostType.FoolFuuka;
 
@@ -294,7 +294,7 @@ namespace Sandwich.ArchiveExtensions
 
             gp.type = GenericPost.PostType.FoolFuuka;
 
-            gp.PostNumber = Convert.ToInt32(article_node.GetId());
+            gp.PostNumber = Convert.ToInt32(article_node.Id);
 
             gp.board = board;
 

@@ -11,6 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Sandwich.Chans;
 
 namespace Sandwich.WPF
 {
@@ -22,10 +23,13 @@ namespace Sandwich.WPF
         private string board;
         private int tid;
         private int postid;
-
-        public DeletePostDialog(string _board, int threadID, int postID)
+        private IChan chan;
+        public DeletePostDialog(Chans.IChan _chan, string _board, int threadID, int postID)
         {
             InitializeComponent();
+            
+            this.chan = _chan;
+
             this.board = _board;
             tid = threadID;
             postid = postID;
@@ -45,8 +49,7 @@ namespace Sandwich.WPF
             {
                 try
                 {
-                    Core.DeleteStatus del_status = Core.DeletePost(this.board, this.tid, this.postid, password, file_only);
-
+                    Core.DeleteStatus del_status = this.chan.DeletePost(this.board, this.tid, this.postid, password, file_only);
 
                     if (del_status == Core.DeleteStatus.Success)
                     {

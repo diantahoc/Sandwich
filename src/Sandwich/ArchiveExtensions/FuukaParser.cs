@@ -63,7 +63,7 @@ namespace Sandwich.ArchiveExtensions
 
             doc.LoadHtml(get_data(string.Format(arhive.ThreadUrl, board, threadID)));
 
-            HtmlNodeCollection divs = doc.DocumentNode.SelectNodes("//div");
+            var divs = doc.DocumentNode.SelectNodes("//div");
 
             HtmlNode contentDiv = null; // 8
 
@@ -127,7 +127,6 @@ namespace Sandwich.ArchiveExtensions
 
             if (!node.InnerText.Contains("nothumb"))
             {
-
                 PostFile pf = new PostFile();
 
                 pf.board = t.board;

@@ -157,7 +157,6 @@ namespace Sandwich
 
         #endregion
 
-
         #region Properties
 
         public BitmapImage Image
@@ -175,54 +174,16 @@ namespace Sandwich
             }
         }
 
-        private string custom_t_link = "";//HACK
-
         public string ThumbLink
         {
-            get
-            {
-                if (custom_t_link == "")
-                {
-                    if (this.board == "f")
-                    {
-                        return "";
-                    }
-                    else
-                    {
-                        return string.Format(Core.thumbLink, this.board, this.thumbnail_tim);
-                    }
-                }
-                else
-                {
-                    return custom_t_link;
-                }
-            }
-            set { custom_t_link = value; }
+            get;
+            set;
         }
-
-        private string custom_full_link = ""; //HACK
 
         public string FullImageLink
         {
-            get
-            {
-                if (custom_full_link == "")
-                {
-                    if (board == "f")
-                    {
-                        return string.Format(Core.imageLink, this.board, this.filename, this.ext);
-                    }
-                    else
-                    {
-                        return string.Format(Core.imageLink, this.board, this.thumbnail_tim, this.ext);
-                    }
-                }
-                else
-                {
-                    return custom_full_link;
-                }
-            }
-            set { custom_full_link = value; }
+            get;
+            set;
         }
         #endregion
 
